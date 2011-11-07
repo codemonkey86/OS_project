@@ -2852,3 +2852,7 @@ Completed in 13ms (View: 0, DB: 0) | 200 OK [http://localhost/load/index]
 
 Processing LoadController#index (for 127.0.0.1 at 2011-11-05 23:49:31) [GET]
 Completed in 12ms (View: 0, DB: 0) | 200 OK [http://localhost/load/index]
+
+
+Processing LoadController#index (for 127.0.0.1 at 2011-11-05 23:51:52) [GET]
+Completed in 14ms (View: 0, DB: 0) | 200 OK [http://localhost/load/index]

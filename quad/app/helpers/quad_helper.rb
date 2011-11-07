@@ -1,0 +1,2 @@
+module QuadHelper
+end

@@ -1,0 +1,6 @@
+<%= render "quadform" %>
+<% if @results.class == String %>
+<%= @results %>
+<% else %>
+Solution = <%= @results[0] %> and <%= @results[1] %>
+<% end %>

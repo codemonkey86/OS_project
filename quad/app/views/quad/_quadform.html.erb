@@ -1,0 +1,8 @@
+Input values for a, b and c 
+
+<% form_tag(:controller => "quad", :action=> "compute") do %>
+  <%= text_field_tag(:ainput) %>
+  <%= text_field_tag(:binput) %>
+  <%= text_field_tag(:cinput) %>
+  <%= submit_tag("Compute") %>
+<% end %>

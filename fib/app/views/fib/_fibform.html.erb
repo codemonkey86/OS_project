@@ -1,0 +1,6 @@
+Input N to compute nth value in Fibonacci sequence 
+
+<% form_tag(:controller => "fib", :action=> "compute") do %>
+  <%= text_field_tag(:digits) %>
+  <%= submit_tag("Compute") %>
+<% end %>
