@@ -1,7 +1,9 @@
 include Math
+require 'bigdecimal'
 class PiController < ApplicationController
 
    def compute
+       # ruby precision limits result in 15 place cap
         if  !params[:digits].match(/^[1-9][0-9]*$/) or params[:digits].to_i > 15 
              @result = "Invalid Input: Try Again"
         else # use Gauss-Legendre algo to calculate pi
@@ -13,7 +15,6 @@ class PiController < ApplicationController
            p = 1
            found = false
   	   while !found
-                 puts "iter" 
                   an = (a+b)/2
                   bn = sqrt(a*b)
                   tn = t -p*(a-an)**2

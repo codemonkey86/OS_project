@@ -1,0 +1,6 @@
+
+<% form_tag(:controller => "convert", :action=> "compute") do %>
+ Input Base 10 Value: <%= text_field_tag(:value) %>
+ <br>Convert to Base (2 to 64): <%= text_field_tag(:base) %>
+  <%= submit_tag("Compute") %>
+<% end %>

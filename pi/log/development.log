@@ -2856,3 +2856,208 @@ Completed in 12ms (View: 0, DB: 0) | 200 OK [http://localhost/load/index]
 
 Processing LoadController#index (for 127.0.0.1 at 2011-11-05 23:51:52) [GET]
 Completed in 14ms (View: 0, DB: 0) | 200 OK [http://localhost/load/index]
+
+
+Processing PiController#index (for 127.0.0.1 at 2011-11-07 20:27:48) [GET]
+Rendering pi/index
+Rendered pi/_piform (31.8ms)
+Completed in 86ms (View: 85, DB: 0) | 200 OK [http://localhost/]
+
+
+Processing LoadController#inde (for 127.0.0.1 at 2011-11-07 20:28:02) [GET]
+
+ActionController::UnknownAction (No action responded to inde. Actions: index):
+  <internal:prelude>:10:in `synchronize'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:111:in `service'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:70:in `run'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/server.rb:183:in `block in start_thread'
+
+Rendering rescues/layout (not_found)
+
+
+Processing LoadController#index (for 127.0.0.1 at 2011-11-07 20:28:04) [GET]
+Completed in 304ms (View: 1, DB: 0) | 200 OK [http://localhost/load/index]
+
+
+Processing LoadController#index (for 127.0.0.1 at 2011-11-07 20:28:10) [GET]
+Completed in 11ms (View: 0, DB: 0) | 200 OK [http://localhost/load/index]
+
+
+Processing LoadController#index (for 127.0.0.1 at 2011-11-07 20:28:12) [GET]
+Completed in 11ms (View: 0, DB: 0) | 200 OK [http://localhost/load/index]
+
+
+Processing PiController#index (for 127.0.0.1 at 2011-11-07 20:28:15) [GET]
+Rendering pi/index
+Rendered pi/_piform (0.9ms)
+Completed in 28ms (View: 27, DB: 0) | 200 OK [http://localhost/pi]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:28:17) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"15", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (1.1ms)
+Completed in 30ms (View: 28, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:29:36) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"1", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:29:43) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"2", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:29:50) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"3", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (1.1ms)
+Completed in 7ms (View: 2, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:29:58) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"4", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:30:11) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"5", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:30:19) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"9", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:30:21) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:30:25) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"9", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.4ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:30:29) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"15", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:30:35) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"16", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:33:08) [GET]
+
+NoMethodError (undefined method `match' for nil:NilClass):
+  app/controllers/pi_controller.rb:5:in `compute'
+  <internal:prelude>:10:in `synchronize'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:111:in `service'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:70:in `run'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/server.rb:183:in `block in start_thread'
+
+Rendered rescues/_trace (9.1ms)
+Rendered rescues/_request_and_response (0.7ms)
+Rendering rescues/layout (internal_server_error)
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:33:12) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"16", "commit"=>"Compute"}
+
+TypeError (can't convert Fixnum into String):
+  app/controllers/pi_controller.rb:16:in `+'
+  app/controllers/pi_controller.rb:16:in `compute'
+  <internal:prelude>:10:in `synchronize'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:111:in `service'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:70:in `run'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/server.rb:183:in `block in start_thread'
+
+Rendered rescues/_trace (8.8ms)
+Rendered rescues/_request_and_response (0.2ms)
+Rendering rescues/layout (internal_server_error)
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:33:15) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"15", "commit"=>"Compute"}
+
+TypeError (can't convert Fixnum into String):
+  app/controllers/pi_controller.rb:16:in `+'
+  app/controllers/pi_controller.rb:16:in `compute'
+  <internal:prelude>:10:in `synchronize'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:111:in `service'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:70:in `run'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/server.rb:183:in `block in start_thread'
+
+Rendered rescues/_trace (21.8ms)
+Rendered rescues/_request_and_response (0.2ms)
+Rendering rescues/layout (internal_server_error)
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:33:30) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"15", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 2ms (View: 1, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:33:31) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"16", "commit"=>"Compute"}
+
+
+Processing PiController#index (for 127.0.0.1 at 2011-11-07 20:42:12) [GET]
+Rendering pi/index
+Rendered pi/_piform (0.8ms)
+Completed in 12ms (View: 11, DB: 0) | 200 OK [http://localhost/]
+
+
+Processing PiController#compute (for 127.0.0.1 at 2011-11-07 20:42:15) [POST]
+  Parameters: {"authenticity_token"=>"1JFss5lS2Ap+GZExi7NSoQxf8ipcKllGooF4H6sFEtc=", "digits"=>"15", "commit"=>"Compute"}
+Rendering pi/compute
+Rendered pi/_piform (0.3ms)
+Completed in 21ms (View: 20, DB: 0) | 200 OK [http://localhost/pi/compute]
+
+
+Processing PiController#index (for 127.0.0.1 at 2011-11-07 21:03:04) [GET]
+Rendering pi/index
+Rendered pi/_piform (0.8ms)
+Completed in 12ms (View: 11, DB: 0) | 200 OK [http://localhost/]
+
+Errno::EIO (Input/output error - <STDOUT>):
+  app/controllers/pi_controller.rb:16:in `write'
+  app/controllers/pi_controller.rb:16:in `puts'
+  app/controllers/pi_controller.rb:16:in `puts'
+  app/controllers/pi_controller.rb:16:in `compute'
+  <internal:prelude>:10:in `synchronize'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:111:in `service'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/httpserver.rb:70:in `run'
+  /usr/local/ruby/lib/ruby/1.9.1/webrick/server.rb:183:in `block in start_thread'
+
+
+
+Processing PiController#index (for 127.0.0.1 at 2011-11-07 21:15:57) [GET]
+Rendering pi/index
+Rendered pi/_piform (20.4ms)
+Completed in 98ms (View: 97, DB: 0) | 200 OK [http://localhost/]
