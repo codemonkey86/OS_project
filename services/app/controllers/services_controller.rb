@@ -14,8 +14,11 @@ class ServicesController < ApplicationController
       redirect_to "http://lmgtfy.com/?q=#{params[:id]}" and return
     end
 
+    # discover?
+    services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}
+    
     # normally only if below threshold and host service but...
-    if service_up?(params[:id])
+    if Service.up?(params[:id])
       redirect_to "http://localhost:#{Service::APPS[params[:id]]}"
     else
       redirect_to "http://www.google.com"
@@ -26,7 +29,7 @@ class ServicesController < ApplicationController
   def list
     s = []
     Service::APPS.keys.each do |name|
-      s << name if service_up?(name)
+      s << name if Service.up?(name)
     end
     render :json => s
   end
@@ -37,16 +40,6 @@ class ServicesController < ApplicationController
 
   # POST /services
   def create
-  end
-
-  private
-  def service_up?(name)
-    begin
-      c = Curl::Easy.perform("http://localhost:#{Service::APPS[name]}")
-    rescue Curl::Err::ConnectionFailedError
-      return false
-    end
-    c.response_code == 200
   end
 end
 
