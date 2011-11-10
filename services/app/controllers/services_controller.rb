@@ -1,3 +1,4 @@
+require 'peach'
 class ServicesController < ApplicationController
   # GET /services
   def index
@@ -31,7 +32,7 @@ class ServicesController < ApplicationController
   # GET /services/list
   def list
     s = []
-    Service::APPS.keys.each do |name|
+    Service::APPS.keys.peach do |name|
       s << name if Service.up?(name)
     end
     render :json => s

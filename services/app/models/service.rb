@@ -15,33 +15,39 @@ class Service < ActiveRecord::Base
       :timestamp => nil
     }
    
-     
-    nmap.peach do |box|
-      APPS.keys.peach do |name|
-        #TODO: instead of calling each service,  call each hosts services/list method?
-           cache_me[:services][name] << box if Service.up?(name)
-      end
-    end
+   # remote call to services/list
+
+   nmap.peach do |box|  
+      json_out = net_get("http://#{box}:3000/services/list")      
+   end 
+   
+     cache_me[:services][name] << json_out?  #this needs fixing 
+  
     
     cache_me[:timestamp] = DateTime.now
     cache_me
   end
   
   def self.up?(name,host='localhost')
-    curb_me("http://#{host}:#{Service::APPS[name]}") == 200
+   puts "http://#{host}:#{Service::APPS[name]}"
+    if !net_get("http://#{host}:#{Service::APPS[name]}")  
+     return false
+   else 
+    return true
   end
+end
   
   private
   # Curb wrapper to catch any errors for connections
   # input: url to connect to
   # output: false on error or curb response otherwise
   # TODO: would need to give back obj eventually- return a tuple status (curb respose or false,  object (or nil in case of false))
-  def self.curb_me(url)
+  def self.net_get(url)
+    
     begin
-      c = Curl::Easy.perform(url)
-      c.response_code
-    rescue Curl::Err::ConnectionFailedError
-      return false
+      res = Net::HTTP.get(URI.parse(url))
+    rescue Exception => e 
+      false
     end
   end
 
@@ -51,4 +57,3 @@ class Service < ActiveRecord::Base
     [s.split(' ')[0]]
   end
 end
-
