@@ -1,6 +1,8 @@
 class ServicesController < ApplicationController
   # GET /services
   def index
+      services = Service.discovery
+      puts services
   end
 
   # GET /services/:service_name
@@ -16,8 +18,9 @@ class ServicesController < ApplicationController
 
     # discover?
     services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}
-    
-    # normally only if below threshold and host service but...
+    puts services.inspect  
+  
+    #TODO;  implement load balancing here normally only if below threshold and host service but...
     if Service.up?(params[:id])
       redirect_to "http://localhost:#{Service::APPS[params[:id]]}"
     else

@@ -1,3 +1,4 @@
+'require peach'
 class Service < ActiveRecord::Base
   APPS = {
     'pi' => '3141',
@@ -13,11 +14,12 @@ class Service < ActiveRecord::Base
       :services => Hash.new{ |hash,key| hash[key] = Array.new },
       :timestamp => nil
     }
-    
-    # should eventually be threaded
-    nmap.each do |box|
-      APPS.keys.each do |name|
-        cache_me[:services][name] << box if Service.up?(name)
+   
+     
+    nmap.peach do |box|
+      APPS.keys.peach do |name|
+        #TODO: instead of calling each service,  call each hosts services/list method?
+           cache_me[:services][name] << box if Service.up?(name)
       end
     end
     
@@ -33,7 +35,7 @@ class Service < ActiveRecord::Base
   # Curb wrapper to catch any errors for connections
   # input: url to connect to
   # output: false on error or curb response otherwise
-  # TODO: would need to give back obj eventually?
+  # TODO: would need to give back obj eventually- return a tuple status (curb respose or false,  object (or nil in case of false))
   def self.curb_me(url)
     begin
       c = Curl::Easy.perform(url)
@@ -45,7 +47,7 @@ class Service < ActiveRecord::Base
 
   #dummy cheat
   def self.nmap
-    s = "130.85.198.188 stevebox"
+    s = "localhost stevebox"
     [s.split(' ')[0]]
   end
 end

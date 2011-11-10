@@ -22,6 +22,7 @@ Rails::Initializer.run do |config|
   config.gem "curb"
   config.gem "jdbc-sqlite3"
   config.gem "activerecord-jdbcsqlite3-adapter"
+  config.gem "peach"
 #   config.gem "nmap-parser"
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
