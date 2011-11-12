@@ -1,2 +1,2 @@
-rvm use 1.9.2
+rvm use jruby 1.3.5
 rvm gemset use os_proj
