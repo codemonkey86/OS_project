@@ -2,8 +2,11 @@ require 'peach'
 class ServicesController < ApplicationController
   # GET /services
   def index
-      services = Service.discovery
-      puts services
+      services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery} 
+  end
+
+  # GET /services/noservice
+  def noservice
   end
 
   # GET /services/:service_name
@@ -13,20 +16,27 @@ class ServicesController < ApplicationController
       redirect_to root_path and return
     end
 
-    unless Service::APPS.include?(params[:id])
-      redirect_to "http://lmgtfy.com/?q=#{params[:id]}" and return
-    end
 
-    # discover?
-    services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}
-    puts services.inspect  
-  
-    #TODO;  implement load balancing here normally only if below threshold and host service but...
-    if Service.up?(params[:id])
-      redirect_to "http://localhost:#{Service::APPS[params[:id]]}"
+ 
+    localload = Service.run_local(params[:id], true)
+    if localload[0]    #1st parameter is true if service is available locally and below threshold 
+        redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
     else
-      redirect_to "http://www.google.com"
+        services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}   
+        if !Service.min_load(services, params[:id]) #service not found anywhere else
+             if Service.run_local(params[:id], false)[0] #run it locally, this time regardless of load
+                redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
+             else
+                 redirect_to "http://localhost:3000/services/noservice" #todo build this view, service not found anywhere
+             end
+        else  #redirect request to machine identified as having lowest balance (including local machine's balance!)
+            redirect_to Service.min_load(services.services, params[:id], localload[1]))
+        end
     end
+            
+
+
+
   end
 
   # GET /services/list

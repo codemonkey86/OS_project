@@ -6,7 +6,40 @@ class Service < ActiveRecord::Base
     'convert' => '1210',
     'quad' => '4416'
   }
+  AVERAGE_LOAD = 5**10
   
+  #check local balance, checks if service can be run and load is below threshold else returns false 
+  def self.run_local(servicename, balance)     
+    load = net_get("http://localhost:#{Service::APPS[servicename]}/load")
+    [load &&  (!balance || (load.to_f < Service::AVERAGE_LOAD )), load]
+  end
+ 
+  def self.min_load(shash, servicename, locallow=nil)  #TODO using peachi
+      if locallow == nil || !locallow
+          min = 10**20 
+      else 
+          min = locallow
+
+      shash[:services][servicename].each do |host|
+         load  = net_get("http://#{host}:#{Service::APPS[name]}/load") 
+         if load < min
+             min = load
+             minhost = host
+         end
+      end
+      return false if min == 10**20
+      return "http://localhost:3000/services/#{servicename}" if locallow == min
+      return "http://#{minhost}:3000/services/#{servicename}"
+ 
+                 
+
+
+  end
+
+
+
+
+  #fixed threshold for now, possibly dynamic later if time permits 
   ##
   # returns a populated services object, generally for cacheing
   def self.discovery
@@ -17,11 +50,7 @@ class Service < ActiveRecord::Base
    
    # remote call to services/list
 
-   nmap.peach do |box|  
-      json_out = net_get("http://#{box}:3000/services/list")      
-   end 
    
-     cache_me[:services][name] << json_out?  #this needs fixing 
   
     
     cache_me[:timestamp] = DateTime.now
@@ -29,7 +58,6 @@ class Service < ActiveRecord::Base
   end
   
   def self.up?(name,host='localhost')
-   puts "http://#{host}:#{Service::APPS[name]}"
     if !net_get("http://#{host}:#{Service::APPS[name]}")  
      return false
    else 
@@ -45,7 +73,7 @@ end
   def self.net_get(url)
     
     begin
-      res = Net::HTTP.get(URI.parse(url))
+      res = Net::HTTP:Persistent.new.request URI.parse(url)
     rescue Exception => e 
       false
     end
@@ -54,6 +82,6 @@ end
   #dummy cheat
   def self.nmap
     s = "localhost stevebox"
-    [s.split(' ')[0]]
+    [s.split(' ')]
   end
 end
