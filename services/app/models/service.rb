@@ -1,4 +1,5 @@
-'require peach'
+require 'peach'
+require 'net/http/persistent'
 class Service < ActiveRecord::Base
   APPS = {
     'pi' => '3141',
@@ -19,7 +20,7 @@ class Service < ActiveRecord::Base
           min = 10**20 
       else 
           min = locallow
-
+     end
       shash[:services][servicename].each do |host|
          load  = net_get("http://#{host}:#{Service::APPS[name]}/load") 
          if load < min
@@ -81,7 +82,8 @@ class Service < ActiveRecord::Base
   # TODO: would need to give back obj eventually- return a tuple status (curb respose or false,  object (or nil in case of false))
   def self.net_get(url)
     begin
-      res = Net::HTTP:Persistent.new.request URI.parse(url)
+      res = Net::HTTP::Persistent.new.request URI url
+      res.body 
     rescue Exception => e 
       false
     end
