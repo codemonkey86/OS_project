@@ -16,28 +16,36 @@ class ServicesController < ApplicationController
       redirect_to root_path and return
     end
 
-    localload = Service.run_local(params[:id], true)
-    if localload[0]    #1st parameter is true if service is available locally and below threshold
-        redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
+   #load balancing algorithm: run locally if below threshold, else redirect request to lowest absolute load of discovered services
+    # fetch cache
+    syscache = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}
+    #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
+    if run_local(params[:id], syscacne[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
+        redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
     else
-        services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
-        if !Service.min_load(services, params[:id]) #service not found anywhere else
-             if Service.run_local(params[:id], false)[0] #run it locally, this time regardless of load
-                redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
-             else
-                 redirect_to "http://localhost:3000/services/noservice" #todo build this view, service not found anywhere
-             end
-        else  #redirect request to machine identified as having lowest balance (including local machine's balance!)
-            redirect_to Service.min_load(services.services, params[:id], localload[1]))
+        minload(syscache)
+        if !minload
+            redirect_to noservice
+        else
+             redirect to minload
         end
+
     end
+
+  # obtained from cache
+     #run_local(service_name, service_policy, system_policy service_average_load
+   # if Service.run_local(params[:id], syscache[:services][params[:id]][:policies], syscache[:services][params[:id]][:threshold])   # run local service if it contains proper policy and is below threshold
+   #
+   # else
+
+   # end
   end
 
   # GET /services/list
   def list
     s = []
-    Service::APPS.keys.peach do |name|
-      s << name if Service.up?(name)
+    Service::APPS.keys.peach do |namepolicy|
+      s << [namepolicy, Service::APPS[namepolicy].last] if Service.up?(namepolicy)
     end
     render :json => s
   end

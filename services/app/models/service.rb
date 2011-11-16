@@ -1,14 +1,14 @@
 require 'peach'
 require 'net/http/persistent'
 class Service < ActiveRecord::Base
-  APPS = {
-    'pi' => '3141',
-    'fib' => '3001',
-    'convert' => '1210',
-    'quad' => '4416'
-  }
-  AVERAGE_LOAD = 5**10
 
+ #TODO: policies to be populated from reading XML
+  APPS = {
+    'pi' => ['3141', 'pipoolicy'],
+    'fib' => ['3001','fibpolicy'],
+    'convert' => ['1210', 'convertpolicy'],
+    'quad' => ['4416', 'quadpolicy']
+  }
   CACHE_KEY = 'discovered'
 
   serialize :state
@@ -16,54 +16,58 @@ class Service < ActiveRecord::Base
   validates_presence_of :state
 
   #check local balance, checks if service can be run and load is below threshold else returns false
-  def self.run_local(servicename, balance)
-    load = net_get("http://localhost:#{Service::APPS[servicename]}/load")
-    [load &&  (!balance || (load.to_f < Service::AVERAGE_LOAD )), load]
+  def self.run_local(servicename, servicepolicy, machinepolicy, threshold)
+    load = net_get("http://localhost:#{Service::APPS[servicename].first}/load")
+    load &&  (load.to_f < threshold)  && policymatch(servicepolicy,machinepolicy)
   end
 
-  def self.min_load(shash, servicename, locallow=nil)  #TODO using peachi
-    if locallow == nil || !locallow
-        min = 10**20
-    else
-        min = locallow
-    end
-    shash[:services][servicename].each do |host|
-      load  = net_get("http://#{host}:#{Service::APPS[name]}/load")
-      if load < min
-         min = load
-         minhost = host
-      end
-    end
-    return false if min == 10**20
-    return "http://localhost:3000/services/#{servicename}" if locallow == min
-    return "http://#{minhost}:3000/services/#{servicename}"
+  def minload(syscache)  # find machine that is up with absolute minimum load   (make sure it is up before assigning it as "low"
   end
-  #TODO: fixed threshold for now, possibly dynamic later if time permits
+
+  def policymatch(ptest, preq)     #parse boolean logic
+  end
 
   ##
   # returns a populated services object, generally for cacheing
-  def self.discovery
-    cache_me = {
-      :services => Hash.new{ |hash,key| hash[key] = Array.new },
-      :timestamp => nil
-    }
+  def self.discovery  #TODO: needs to be tested for newly designed hash
+   cache_me = {
+      :timestamp => nil,
+      :machinepolicy => nil,
+   :services =>  Hash.new {|hash,key|
+                      hash[key] = {:host_policy => Hash.new{|hash,key|
+                                    hash[key] = nil},
+                                   :threshold => nil}
+                     }
 
+   }
+   serviceload = Hash.new(0)
     # remote call to services/list
     nmap.peach do |box|
       json_out = net_get("http://#{box}:3000/services/list")
+      #json should be array of (servicename, policy) tuples
+
       if json_out
-        JSON.parse(json_out).peach do |name|
-          cache_me[:services][name] << box
+        JSON.parse(json_out).peach do |namepolicy|
+          cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
+
+          #load =
+          serviceload[namepolicy.first] = serviceload[namepolicy.first] + (net_get("http://#{box}:#{Service::APPS[namepolicy.first].first}/load").to_f || 0)
         end
+
+
       end
     end
-
+   # cache_me[:services][servicename][threshold] = avg
+   cache_me[:services].keys.peach do |sname|
+         cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
+   end
     cache_me[:timestamp] = DateTime.now
     cache_me
+
   end
 
   def self.up?(name,host='localhost')
-    if !net_get("http://#{host}:#{Service::APPS[name]}")
+    if !net_get("http://#{host}:#{Service::APPS[name].first}")
      return false
    else
     return true
