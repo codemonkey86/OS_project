@@ -9,35 +9,30 @@ class Service < ActiveRecord::Base
     'convert' => ['1210', 'convertpolicy'],
     'quad' => ['4416', 'quadpolicy']
   }
+  
+ 
 
   
   #check local balance, checks if service can be run and load is below threshold else returns false 
-  def self.run_local(servicename, policies)     
+  def self.run_local(servicename, servicepolicy, machinepolicy, threshold)     
     load = net_get("http://localhost:#{Service::APPS[servicename].first}/load")
-    load &&  (load.to_f < Service::AVERAGE_LOAD )
+    load &&  (load.to_f < threshold)  && policymatch(servicepolicy,machinepolicy)
   end
+  
+
+  def minload(syscache)  # find machine that is up with absolute minimum load   (make sure it is up before assigning it as "low"
+  end
+  
+                  
+  def policymatch(ptest, preq)     #parse boolean logic
+        
+                  
+  end
+  
  
-  def self.min_load(shash, servicename, locallow=nil)  #TODO using peachi
-      if locallow == nil || !locallow
-          min = 10**20 
-      else 
-          min = locallow
-     end
-      shash[:services][servicename].each do |host|
-         load  = net_get("http://#{host}:#{Service::APPS[name].first}/load") 
-         if load < min
-             min = load
-             minhost = host
-         end
-      end
-      return false if min == 10**20
-      return "http://localhost:3000/services/#{servicename}" if locallow == min
-      return "http://#{minhost}:3000/services/#{servicename}"
- 
-                 
+        
 
 
-  end
 
 
 
@@ -49,12 +44,12 @@ class Service < ActiveRecord::Base
    cache_me = {
       :timestamp => nil,
       :machinepolicy => nil,
-      :services => Hash.new{ |hash,key| hash[key] =  {
-                                          :policies => nil,
-                                          :hosts => Array.new,
-                                           :threshold => nil
-                                          }
-                  }
+   :services =>  Hash.new {|hash,key|
+                      hash[key] = {:host_policy => Hash.new{|hash,key|
+                                    hash[key] = nil},
+                                   :threshold => nil}
+                     }
+                  
    }
    serviceload = Hash.new(0)
     # remote call to services/list  
@@ -64,9 +59,9 @@ class Service < ActiveRecord::Base
       
       if json_out
         JSON.parse(json_out).peach do |namepolicy|
-          cache_me[:services][namepolicy.first][:hosts] << box
-          cache_me[:services][namepolicy.first][:policies] = namepolicy.last      
-          load = 
+          cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
+      
+          #load = 
           serviceload[namepolicy.first] = serviceload[namepolicy.first] + (net_get("http://#{box}:#{Service::APPS[namepolicy.first].first}/load").to_f || 0)
         end
        
@@ -75,39 +70,11 @@ class Service < ActiveRecord::Base
     end
    # cache_me[:services][servicename][threshold] = avg
    cache_me[:services].keys.peach do |sname|
-         cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:hosts].size
+         cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
    end
     cache_me[:timestamp] = DateTime.now
-    #cache_me[:machinepolicy] = ???
     cache_me
 
-  end
-
-  def self.up?(name,host='localhost')
-    if !net_get("http://#{host}:#{Service::APPS[name]}")  
-     return false
-   else 
-    return true
-    end
-  end
-
-  private
-  # wrapper to catch any errors for connections
-  # input: url to connect to
-  # output: false on error or curb response otherwise
-  # TODO: would need to give back obj eventually- return a tuple status (curb respose or false,  object (or nil in case of false))
-  def self.net_get(url)
-    begin
-      res = Net::HTTP::Persistent.new.request URI url
-      res.body 
-    rescue Exception => e 
-      false
-    end
-  end
-
-  #dummy cheat
-  def self.nmap
-    %w(localhost stevebox)
   end
 
   
@@ -120,7 +87,7 @@ class Service < ActiveRecord::Base
     end
   end
 
-  private
+ 
   # wrapper to catch any errors for connections
   # input: url to connect to
   # output: false on error or curb response otherwise
