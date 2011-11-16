@@ -78,6 +78,26 @@ class Service < ActiveRecord::Base
     CACHE_KEY
   end
 
+  # TODO: eventually kick this off periodically somehow, script/runner ?
+  ##
+  # This will get all the other box's views of the network and compare
+  # them to each other to determine who has the newest overview
+  # which will be sent back to everyone
+  def sync
+    caches = []
+    nmap.peach do |box|
+      resp = net_get("http://#{box}:3000/?read_only=true")
+      caches << JSON.parse(resp) if resp
+    end
+
+    newest = caches.sort{|a,b| a[:timestamp] <=> b[:timestamp]}.last
+
+    #TODO: do a post to services/set_cache
+    # or devise different param to set to index and have that handle everything cache
+    # so passing :read_only would only read cache, maybe :write_only would include the
+    # new cache object to set?
+  end
+
   private
   # wrapper to catch any errors for connections
   # input: url to connect to

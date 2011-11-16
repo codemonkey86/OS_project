@@ -1,12 +1,20 @@
 require 'peach'
+require 'json'
 class ServicesController < ApplicationController
   # GET /services
+  # can pass param to negate building a new cached object
   def index
-      services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
+    return Rails.cache.read(Service.cache_key) if params[:read_only]
+
+    services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
   end
 
   # GET /services/noservice
   def noservice
+  end
+
+  def set_cache
+    Rails.cache.write(Service.cache_key,JSON.parse(params[:newest]))
   end
 
   # GET /services/:service_name
