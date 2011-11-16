@@ -8,39 +8,37 @@ class Service < ActiveRecord::Base
     'quad' => '4416'
   }
   AVERAGE_LOAD = 5**10
-  
-  #check local balance, checks if service can be run and load is below threshold else returns false 
-  def self.run_local(servicename, balance)     
+
+  CACHE_KEY = 'discovered'
+
+  serialize :state
+
+  validates_presence_of :state
+
+  #check local balance, checks if service can be run and load is below threshold else returns false
+  def self.run_local(servicename, balance)
     load = net_get("http://localhost:#{Service::APPS[servicename]}/load")
     [load &&  (!balance || (load.to_f < Service::AVERAGE_LOAD )), load]
   end
- 
+
   def self.min_load(shash, servicename, locallow=nil)  #TODO using peachi
-      if locallow == nil || !locallow
-          min = 10**20 
-      else 
-          min = locallow
-     end
-      shash[:services][servicename].each do |host|
-         load  = net_get("http://#{host}:#{Service::APPS[name]}/load") 
-         if load < min
-             min = load
-             minhost = host
-         end
+    if locallow == nil || !locallow
+        min = 10**20
+    else
+        min = locallow
+    end
+    shash[:services][servicename].each do |host|
+      load  = net_get("http://#{host}:#{Service::APPS[name]}/load")
+      if load < min
+         min = load
+         minhost = host
       end
-      return false if min == 10**20
-      return "http://localhost:3000/services/#{servicename}" if locallow == min
-      return "http://#{minhost}:3000/services/#{servicename}"
- 
-                 
-
-
+    end
+    return false if min == 10**20
+    return "http://localhost:3000/services/#{servicename}" if locallow == min
+    return "http://#{minhost}:3000/services/#{servicename}"
   end
-
-
-
-
-  #fixed threshold for now, possibly dynamic later if time permits 
+  #TODO: fixed threshold for now, possibly dynamic later if time permits
 
   ##
   # returns a populated services object, generally for cacheing
@@ -50,9 +48,6 @@ class Service < ActiveRecord::Base
       :timestamp => nil
     }
 
-   
-  
-    
     # remote call to services/list
     nmap.peach do |box|
       json_out = net_get("http://#{box}:3000/services/list")
@@ -68,11 +63,15 @@ class Service < ActiveRecord::Base
   end
 
   def self.up?(name,host='localhost')
-    if !net_get("http://#{host}:#{Service::APPS[name]}")  
+    if !net_get("http://#{host}:#{Service::APPS[name]}")
      return false
-   else 
+   else
     return true
     end
+  end
+
+  def self.cache_key
+    CACHE_KEY
   end
 
   private
@@ -83,8 +82,8 @@ class Service < ActiveRecord::Base
   def self.net_get(url)
     begin
       res = Net::HTTP::Persistent.new.request URI url
-      res.body 
-    rescue Exception => e 
+      res.body
+    rescue Exception => e
       false
     end
   end
@@ -94,4 +93,3 @@ class Service < ActiveRecord::Base
     %w(localhost stevebox)
   end
 end
-

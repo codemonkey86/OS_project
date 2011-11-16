@@ -2,7 +2,7 @@ require 'peach'
 class ServicesController < ApplicationController
   # GET /services
   def index
-      services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery} 
+      services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
   end
 
   # GET /services/noservice
@@ -16,13 +16,11 @@ class ServicesController < ApplicationController
       redirect_to root_path and return
     end
 
-
- 
     localload = Service.run_local(params[:id], true)
-    if localload[0]    #1st parameter is true if service is available locally and below threshold 
+    if localload[0]    #1st parameter is true if service is available locally and below threshold
         redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
     else
-        services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}   
+        services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
         if !Service.min_load(services, params[:id]) #service not found anywhere else
              if Service.run_local(params[:id], false)[0] #run it locally, this time regardless of load
                 redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
@@ -33,10 +31,6 @@ class ServicesController < ApplicationController
             redirect_to Service.min_load(services.services, params[:id], localload[1]))
         end
     end
-            
-
-
-
   end
 
   # GET /services/list
@@ -53,7 +47,9 @@ class ServicesController < ApplicationController
   end
 
   # POST /services
+  # used to save cache state may move to new if can't hit this
   def create
+    service = Services.new(:state=>Rails.cache.fetch(Service.cache_key))
+    return service.save!
   end
 end
-
