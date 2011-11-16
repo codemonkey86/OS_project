@@ -5,3 +5,10 @@
 
 # in seconds
 FRESH_FOR= 10 * 60
+
+h = Service.last.state
+if (Time.now - h[:timestamp]) < FRESH_FOR
+  Rails.cache.write(Service.cache_key, h)
+else
+  Service.create(:state=>Rails.cache.write(Service.cache_key,Service.discovery))
+end
