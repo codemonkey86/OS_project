@@ -1,7 +1,7 @@
 require 'peach'
 require 'net/http/persistent'
 class Service < ActiveRecord::Base
-  
+
  #TODO: policies to be populated from reading XML
   APPS = {
     'pi' => ['3141', 'pipoolicy'],
@@ -9,16 +9,17 @@ class Service < ActiveRecord::Base
     'convert' => ['1210', 'convertpolicy'],
     'quad' => ['4416', 'quadpolicy']
   }
-  
- 
+  CACHE_KEY = 'discovered'
 
-  
-  #check local balance, checks if service can be run and load is below threshold else returns false 
-  def self.run_local(servicename, servicepolicy, machinepolicy, threshold)     
+  serialize :state
+
+  validates_presence_of :state
+
+  #check local balance, checks if service can be run and load is below threshold else returns false
+  def self.run_local(servicename, servicepolicy, machinepolicy, threshold)
     load = net_get("http://localhost:#{Service::APPS[servicename].first}/load")
     load &&  (load.to_f < threshold)  && policymatch(servicepolicy,machinepolicy)
   end
-  
 
   def minload(scache, policyreq, port)  # find machine that is up with absolute minimum load and appropriate policy 
                                      #(make sure it is up before assigning it as "low", tkaen care of indirectly by checking balance
@@ -34,26 +35,16 @@ class Service < ActiveRecord::Base
       host = "http://#{host}:#{port}"   if host          
        
   end
-  
-                  
+
   def policymatch(ptest, preq)     #parse boolean logic
-    
+
      true  #for now, need to implement      
-                  
+                 
   end
-  
- 
-        
-
-
-
-
-
 
   ##
   # returns a populated services object, generally for cacheing
   def self.discovery  #TODO: needs to be tested for newly designed hash
-
    cache_me = {
       :timestamp => nil,
       :machinepolicy => nil,
@@ -62,23 +53,23 @@ class Service < ActiveRecord::Base
                                     hash[key] = nil},
                                    :threshold => nil}
                      }
-                  
+
    }
    serviceload = Hash.new(0)
-    # remote call to services/list  
+    # remote call to services/list
     nmap.peach do |box|
-      json_out = net_get("http://#{box}:3000/services/list")  
+      json_out = net_get("http://#{box}:3000/services/list")
       #json should be array of (servicename, policy) tuples
-      
+
       if json_out
         JSON.parse(json_out).peach do |namepolicy|
           cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
-      
-          #load = 
+
+          #load =
           serviceload[namepolicy.first] = serviceload[namepolicy.first] + (net_get("http://#{box}:#{Service::APPS[namepolicy.first].first}/load").to_f || 0)
         end
-       
-        
+
+
       end
     end
    # cache_me[:services][servicename][threshold] = avg
@@ -90,17 +81,19 @@ class Service < ActiveRecord::Base
 
   end
 
-  
-
   def self.up?(name,host='localhost')
-    if !net_get("http://#{host}:#{Service::APPS[name].first}")  
+    if !net_get("http://#{host}:#{Service::APPS[name].first}")
      return false
-   else 
+   else
     return true
     end
   end
 
- 
+  def self.cache_key
+    CACHE_KEY
+  end
+
+  private
   # wrapper to catch any errors for connections
   # input: url to connect to
   # output: false on error or curb response otherwise
@@ -108,8 +101,8 @@ class Service < ActiveRecord::Base
   def self.net_get(url)
     begin
       res = Net::HTTP::Persistent.new.request URI url
-      res.body 
-    rescue Exception => e 
+      res.body
+    rescue Exception => e
       false
     end
   end

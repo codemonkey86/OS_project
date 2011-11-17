@@ -2,7 +2,11 @@ require 'peach'
 class ServicesController < ApplicationController
   # GET /services
   def index
+
      # services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery} 
+
+      services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
+
   end
 
   # GET /services/noservice
@@ -32,15 +36,16 @@ class ServicesController < ApplicationController
         else
              redirect to minload 
         end
-      
+
     end
 
 end
 
+
   # GET /services/list
   def list
     s = []
-    Service::APPS.keys.peach do |namepolicy|      
+    Service::APPS.keys.peach do |namepolicy|
       s << [namepolicy, Service::APPS[namepolicy].last] if Service.up?(namepolicy)
     end
     render :json => s
@@ -51,7 +56,9 @@ end
   end
 
   # POST /services
+  # used to save cache state may move to new if can't hit this
   def create
+    service = Services.new(:state=>Rails.cache.fetch(Service.cache_key))
+    return service.save!
   end
 end
-
