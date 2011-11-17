@@ -25,23 +25,21 @@ class Service < ActiveRecord::Base
                                      #(make sure it is up before assigning it as "low", tkaen care of indirectly by checking balance
       low = 10**100
       host = nil
-      scache[:host_policy].peach do |hp|
+      if !scache[:host_policy].empty?
+        scache[:host_policy].peach do |hp|
           load = Service.net_get("http://#{hp.keys.first}:#{port}/load")
           if !load && load < low && policymatch(hp.values.first, policyreq) 
               low = load
               host = hp.keys.first
           end
+        end
       end
       host = "http://#{host}:#{port}"   if host          
        
   end
 
   def policymatch(ptest, preq)     #parse boolean logic
-     (a and d) or (b and c)
-     a or b                req.contain(a) or req.contain(b)
-     
-     a
-     
+   
      
      
      true  #for now, need to implement      
@@ -64,25 +62,28 @@ class Service < ActiveRecord::Base
    }
    serviceload = Hash.new(0)
     # remote call to services/list
-    nmap.peach do |box|
-      json_out = net_get("http://#{box}:3000/services/list")
-      #json should be array of (servicename, policy) tuples
+    if !nmap.empty?
+      nmap.peach do |box| 
+        json_out = net_get("http://#{box}:3000/services/list") || "[]"
+        #json should be array of (servicename, policy) tuples
 
-      if json_out
-        JSON.parse(json_out).peach do |namepolicy|
-          cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
+        if !JSON.parse(json_out).empty?
+          JSON.parse(json_out).peach do |namepolicy| 
+            cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
 
           #load =
-          serviceload[namepolicy.first] = serviceload[namepolicy.first] + (net_get("http://#{box}:#{Service::APPS[namepolicy.first].first}/load").to_f || 0)
+            serviceload[namepolicy.first] = serviceload[namepolicy.first] + (net_get("http://#{box}:#{Service::APPS[namepolicy.first].first}/load").to_f || 0)
+           end
         end
-
 
       end
     end
    # cache_me[:services][servicename][threshold] = avg
-   cache_me[:services].keys.peach do |sname|
+   if !cache_me[:services].keys.empty?
+      cache_me[:services].keys.peach do |sname| 
          cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
-   end
+       end
+    end
     cache_me[:timestamp] = DateTime.now
     cache_me
 
@@ -107,11 +108,12 @@ class Service < ActiveRecord::Base
   # which will be sent back to everyone
   def sync
     caches = []
-    nmap.peach do |box|
-      resp = net_get("http://#{box}:3000")
-      caches << JSON.parse(resp) if resp
-    end
-
+    return if nmap.empty?
+      nmap.peach do |box| 
+        resp = net_get("http://#{box}:3000")
+        caches << JSON.parse(resp) if resp
+      end
+   
     newest = caches.sort{|a,b| a[:timestamp] <=> b[:timestamp]}.last
 
     # do a post to services/set_cache
@@ -119,7 +121,7 @@ class Service < ActiveRecord::Base
     post.set_form_data 'newest' => newest
 
     # perform the POST, the URI is always required
-    nmap.peach do |box|
+    nmap.peach do |box| 
       post_uri = URI "http://#{box}:3000/set_cache"
       Net::HTTP::Persistent.new.request post_uri, post
     end

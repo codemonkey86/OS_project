@@ -4,9 +4,8 @@ class ServicesController < ApplicationController
   # GET /services
   # can pass param to negate building a new cached object
   def index
- 
-    render :json => Rails.cache.read(Service.cache_key)
 
+    render :json => Rails.cache.read(Service.cache_key)
   end
 
   # GET /services/noservice
@@ -49,8 +48,10 @@ end
   # GET /services/list
   def list
     s = []
-    Service::APPS.keys.peach do |namepolicy|
-      s << [namepolicy, Service::APPS[namepolicy].last] if Service.up?(namepolicy)
+    if !Service::APPS.keys.empty?
+      Service::APPS.keys.peach do |namepolicy| 
+        s << [namepolicy, Service::APPS[namepolicy].last] if Service.up?(namepolicy)
+      end
     end
     render :json => s
   end
