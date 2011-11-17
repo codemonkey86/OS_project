@@ -20,12 +20,25 @@ class Service < ActiveRecord::Base
   end
   
 
-  def minload(syscache)  # find machine that is up with absolute minimum load   (make sure it is up before assigning it as "low"
+  def minload(scache, policyreq, port)  # find machine that is up with absolute minimum load and appropriate policy 
+                                     #(make sure it is up before assigning it as "low", tkaen care of indirectly by checking balance
+      low = 10**100
+      host = nil
+      scache[:host_policy].peach do |hp|
+          load = Service.net_get("http://#{hp.keys.first}:#{port}/load")
+          if !load && load < low && policymatch(hp.values.first, policyreq) 
+              low = load
+              host = hp.keys.first
+          end
+      end
+      host = "http://#{host}:#{port}"   if host          
+       
   end
   
                   
   def policymatch(ptest, preq)     #parse boolean logic
-        
+    
+     true  #for now, need to implement      
                   
   end
   

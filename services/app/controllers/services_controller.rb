@@ -2,7 +2,7 @@ require 'peach'
 class ServicesController < ApplicationController
   # GET /services
   def index
-      services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery} 
+     # services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery} 
   end
 
   # GET /services/noservice
@@ -20,30 +20,22 @@ class ServicesController < ApplicationController
     # fetch cache
     syscache = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
+    puts "preloop"
     if run_local(params[:id], syscacne[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
-        redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
+       puts "runlocal true"
+      redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
     else
-        minload(syscache)
+        puts "runlocal false"
+        minload(syscache[:services][params[:id]], syscache[:machinepolicy], Service::APPS[params[:id].first])
         if !minload
             redirect_to noservice
         else
-             redirect to minload
+             redirect to minload 
         end
       
     end
 
-  # obtained from cache
-     #run_local(service_name, service_policy, system_policy service_average_load
-   # if Service.run_local(params[:id], syscache[:services][params[:id]][:policies], syscache[:services][params[:id]][:threshold])   # run local service if it contains proper policy and is below threshold
-   #     
-   # else
-       
-   # end
-            
-
-
-
-  end
+end
 
   # GET /services/list
   def list
