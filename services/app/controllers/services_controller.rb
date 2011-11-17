@@ -1,14 +1,20 @@
 require 'peach'
+require 'json'
 class ServicesController < ApplicationController
   # GET /services
+  # can pass param to negate building a new cached object
   def index
-
-    # services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
+ 
+    render :json => Rails.cache.read(Service.cache_key)
 
   end
 
   # GET /services/noservice
   def noservice
+  end
+
+  def set_cache
+    Rails.cache.write(Service.cache_key,JSON.parse(params[:newest]))
   end
 
   # GET /services/:service_name
@@ -20,7 +26,7 @@ class ServicesController < ApplicationController
 
    #load balancing algorithm: run locally if below threshold, else redirect request to lowest absolute load of discovered services
     # fetch cache
-    syscache = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}
+    syscache = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
     puts "preloop"
     if run_local(params[:id], syscacne[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
