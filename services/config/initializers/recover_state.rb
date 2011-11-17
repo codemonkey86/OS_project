@@ -6,11 +6,9 @@
 # in seconds
 FRESH_FOR= 10 * 60
 
-def after_initialize
-  h = Service.last.state
-  if (Time.now - h[:timestamp]) < FRESH_FOR
-    Rails.cache.write(Service.cache_key, h)
-  else
-    Service.create(:state=>Rails.cache.write(Service.cache_key,Service.discovery))
-  end
+h = Service.last.state
+if (Time.now - h[:timestamp]) < FRESH_FOR
+  puts "Starting with cache: " + Rails.cache.write(Service.cache_key, h).inspect
+else
+  puts "Starting without cache..."
 end
