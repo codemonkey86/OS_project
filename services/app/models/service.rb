@@ -86,16 +86,21 @@ class Service < ActiveRecord::Base
   def sync
     caches = []
     nmap.peach do |box|
-      resp = net_get("http://#{box}:3000/?read_only=true")
+      resp = net_get("http://#{box}:3000")
       caches << JSON.parse(resp) if resp
     end
 
     newest = caches.sort{|a,b| a[:timestamp] <=> b[:timestamp]}.last
 
-    #TODO: do a post to services/set_cache
-    # or devise different param to set to index and have that handle everything cache
-    # so passing :read_only would only read cache, maybe :write_only would include the
-    # new cache object to set?
+    # do a post to services/set_cache
+    post = Net::HTTP::Post.new 'services'
+    post.set_form_data 'newest' => newest
+
+    # perform the POST, the URI is always required
+    nmap.peach do |box|
+      post_uri = URI "http://#{box}:3000/set_cache"
+      Net::HTTP::Persistent.new.request post_uri, post
+    end
   end
 
   private

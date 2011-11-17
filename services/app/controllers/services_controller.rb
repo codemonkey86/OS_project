@@ -4,9 +4,7 @@ class ServicesController < ApplicationController
   # GET /services
   # can pass param to negate building a new cached object
   def index
-    return Rails.cache.read(Service.cache_key) if params[:read_only]
-
-    services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
+    render :json => Rails.cache.read(Service.cache_key)
   end
 
   # GET /services/noservice
@@ -26,7 +24,7 @@ class ServicesController < ApplicationController
 
    #load balancing algorithm: run locally if below threshold, else redirect request to lowest absolute load of discovered services
     # fetch cache
-    syscache = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery}
+    syscache = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
     if run_local(params[:id], syscacne[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
         redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
