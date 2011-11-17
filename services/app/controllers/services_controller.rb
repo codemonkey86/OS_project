@@ -3,9 +3,7 @@ class ServicesController < ApplicationController
   # GET /services
   def index
 
-     # services = Rails.cache.fetch('discovered', :timeout => 1.hour) {Service.discovery} 
-
-      services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
+    # services = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
 
   end
 

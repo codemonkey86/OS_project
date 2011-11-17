@@ -37,8 +37,15 @@ class Service < ActiveRecord::Base
   end
 
   def policymatch(ptest, preq)     #parse boolean logic
-
+     (a and d) or (b and c)
+     a or b                req.contain(a) or req.contain(b)
+     
+     a
+     
+     
+     
      true  #for now, need to implement      
+    
                  
   end
 
