@@ -25,19 +25,22 @@ class ServicesController < ApplicationController
 
    #load balancing algorithm: run locally if below threshold, else redirect request to lowest absolute load of discovered services
     # fetch cache
+    puts "pre cache read"
     syscache = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
     puts "preloop"
-    if run_local(params[:id], syscacne[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
+    if Service.run_local(params[:id], syscache[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
        puts "runlocal true"
       redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
     else
         puts "runlocal false"
-        minload(syscache[:services][params[:id]], syscache[:machinepolicy], Service::APPS[params[:id].first])
+        minload = Service.minload(syscache[:services][params[:id]], syscache[:machinepolicy], Service::APPS[params[:id].first])
         if !minload
-            redirect_to noservice
+            puts "no service redirect"
+            render :action =>  "noservice"
         else
-             redirect to minload 
+             puts "found it redirect"
+             redirect_to minload 
         end
 
     end
