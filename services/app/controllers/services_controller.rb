@@ -30,18 +30,16 @@ class ServicesController < ApplicationController
 
     syscache = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
-    
-    if Service.run_local(params[:id], syscache[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
+    if Service::APPS[params[:id]].nil?
+        render :action => "noservice"
+    elsif Service.run_local(params[:id], syscache[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
        puts "runlocal true"
       redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
     else
-        puts "runlocal false"
         minload = Service.minload(syscache[:services][params[:id]], syscache[:machinepolicy], Service::APPS[params[:id]].first)
         if !minload
-            puts "no service redirect"
             render :action =>  "noservice"
         else
-             puts "found it redirect"
              redirect_to minload 
         end
 

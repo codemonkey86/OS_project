@@ -28,9 +28,9 @@ class Service < ActiveRecord::Base
       if !scache[:host_policy].empty?
         scache[:host_policy].keys.peach do |hostkey|
           load = Service.net_get("http://#{hostkey}:#{port}/load")
-         
+          puts "load" + load.to_s + "low" + low.to_s
           if load && (load.to_f < low) && self.policymatch(scache[:host_policy][hostkey], policyreq) 
-              low = load
+              low = load.to_f
              
               host = hostkey
           end
@@ -123,6 +123,7 @@ class Service < ActiveRecord::Base
   # This will get all the other box's views of the network and compare
   # them to peach other to determine who has the newest overview
   # which will be sent back to everyone
+  #TODO, don't return to winner
   def sync
     caches = []
     return if nmap.empty?
@@ -170,6 +171,6 @@ class Service < ActiveRecord::Base
 
   #dummy cheat
   def self.nmap
-    %w(master stevebox)
+    %w(master steve-laptop)
   end
 end
