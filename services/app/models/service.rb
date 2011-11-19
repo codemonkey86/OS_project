@@ -49,6 +49,12 @@ class Service < ActiveRecord::Base
                  
   end
   
+  def self.getindex
+    Rails.cache.read(Service.cache_key)
+    
+  end
+  
+  
   def self.getlist
     
     s = []
@@ -146,9 +152,14 @@ class Service < ActiveRecord::Base
   # TODO: would need to give back obj eventually- return a tuple status (curb respose or false,  object (or nil in case of false))
   #problem: hangs on localhost:3000, only needed for services/list and get cache?
   def self.net_get(url)
-    if url.include?("#{`hostname`.strip}")  && url.include?(":3000")
+    if url.include?("#{`hostname`.strip}")  && url.include?(":3000") && url.include?("list")
         return self.getlist.to_json
     end
+    
+    if url.include?("#{`hostname`.strip}") && url.include?(":3000")
+         return self.index.to_json
+    end
+    
     
     begin
       res = Net::HTTP::Persistent.new.request URI url

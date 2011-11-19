@@ -5,7 +5,7 @@ class ServicesController < ApplicationController
   # can pass param to negate building a new cached object
   def index
 
-    render :json => Rails.cache.read(Service.cache_key)
+    render :json => Service.getindex 
   end
 
   # GET /services/noservice
