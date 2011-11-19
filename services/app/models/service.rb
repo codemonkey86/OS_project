@@ -51,7 +51,6 @@ class Service < ActiveRecord::Base
   
   def self.getindex
     Rails.cache.read(Service.cache_key)
-    
   end
   
   

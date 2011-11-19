@@ -3,6 +3,8 @@ require 'json'
 class ServicesController < ApplicationController
   # GET /services
   # can pass param to negate building a new cached object
+  skip_before_filter :verify_authenticity_token 
+  # this is disabled for the purpose of gathering metrics via exteranl ruby script
   def index
 
     render :json => Service.getindex 
