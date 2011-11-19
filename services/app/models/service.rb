@@ -28,8 +28,10 @@ class Service < ActiveRecord::Base
       if !scache[:host_policy].empty?
         scache[:host_policy].keys.peach do |hostkey|
           load = Service.net_get("http://#{hostkey}:#{port}/load")
-          if load && (load < low) && policymatch(scache[:host_policy][hostkey], policyreq) 
+         
+          if load && (load.to_f < low) && self.policymatch(scache[:host_policy][hostkey], policyreq) 
               low = load
+             
               host = hostkey
           end
         end
@@ -38,7 +40,7 @@ class Service < ActiveRecord::Base
        
   end
 
-  def policymatch(ptest, preq)     #parse boolean logic
+  def self.policymatch(ptest, preq)     #parse boolean logic
    
      
      
@@ -46,7 +48,20 @@ class Service < ActiveRecord::Base
     
                  
   end
-
+  
+  def self.getlist
+    
+    s = []
+     if !Service::APPS.keys.empty?
+       Service::APPS.keys.peach do |namepolicy| 
+         s << [namepolicy, Service::APPS[namepolicy].last] if Service.up?(namepolicy)
+       end
+     end
+    
+     s
+     # render :json => s  model equivalent to this?
+  end
+  
   ##
   # returns a populated services object, generally for cacheing
   def self.discovery  #TODO: needs to be tested for newly designed hash
@@ -60,25 +75,22 @@ class Service < ActiveRecord::Base
                      }
 
    }
+ 
    serviceload = Hash.new(0)
     # remote call to services/list
     if !nmap.empty?
-      nmap.peach do |box| 
+      nmap.peach do |box|
         json_out = net_get("http://#{box}:3000/services/list") || "[]"
         #json should be array of (servicename, policy) tuples
-
         if !JSON.parse(json_out).empty?
-          JSON.parse(json_out).peach do |namepolicy| 
+          JSON.parse(json_out).peach do |namepolicy|
             cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
-
-          #load =
             serviceload[namepolicy.first] = serviceload[namepolicy.first] + (net_get("http://#{box}:#{Service::APPS[namepolicy.first].first}/load").to_f || 0)
-           end
+          end
         end
-
-      end
+       end
     end
-   # cache_me[:services][servicename][threshold] = avg
+  
    if !cache_me[:services].keys.empty?
       cache_me[:services].keys.peach do |sname| 
          cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
@@ -132,7 +144,12 @@ class Service < ActiveRecord::Base
   # input: url to connect to
   # output: false on error or curb response otherwise
   # TODO: would need to give back obj eventually- return a tuple status (curb respose or false,  object (or nil in case of false))
+  #problem: hangs on localhost:3000, only needed for services/list and get cache?
   def self.net_get(url)
+    if url.include?("#{`hostname`.strip}")  && url.include?(":3000")
+        return self.getlist.to_json
+    end
+    
     begin
       res = Net::HTTP::Persistent.new.request URI url
       res.body
@@ -143,6 +160,6 @@ class Service < ActiveRecord::Base
 
   #dummy cheat
   def self.nmap
-    %w(localhost stevebox)
+    %w(master stevebox)
   end
 end

@@ -25,16 +25,16 @@ class ServicesController < ApplicationController
 
    #load balancing algorithm: run locally if below threshold, else redirect request to lowest absolute load of discovered services
     # fetch cache
-    puts "pre cache read"
+
     syscache = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
-    puts "preloop"
+    
     if Service.run_local(params[:id], syscache[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
        puts "runlocal true"
       redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
     else
         puts "runlocal false"
-        minload = Service.minload(syscache[:services][params[:id]], syscache[:machinepolicy], Service::APPS[params[:id].first])
+        minload = Service.minload(syscache[:services][params[:id]], syscache[:machinepolicy], Service::APPS[params[:id]].first)
         if !minload
             puts "no service redirect"
             render :action =>  "noservice"
@@ -50,13 +50,7 @@ end
 
   # GET /services/list
   def list
-    s = []
-    if !Service::APPS.keys.empty?
-      Service::APPS.keys.peach do |namepolicy| 
-        s << [namepolicy, Service::APPS[namepolicy].last] if Service.up?(namepolicy)
-      end
-    end
-    render :json => s
+    render :json => Service.getlist
   end
 
   # GET /services/new
