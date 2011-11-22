@@ -1,19 +1,20 @@
 require 'peach'
 require 'json'
 class ServicesController < ApplicationController
-  # GET /services
-  # can pass param to negate building a new cached object
-  skip_before_filter :verify_authenticity_token 
   # this is disabled for the purpose of gathering metrics via exteranl ruby script
-  def index
+  skip_before_filter :verify_authenticity_token
 
-    render :json => Service.getindex 
+  # GET /services
+  def index
+    render :json => Service.getindex
   end
 
   # GET /services/noservice
   def noservice
   end
 
+  # GET /services/set_cache
+  # jump straight to cache writing via passed param
   def set_cache
     Rails.cache.write(Service.cache_key,JSON.parse(params[:newest]))
   end
@@ -25,28 +26,27 @@ class ServicesController < ApplicationController
       redirect_to root_path and return
     end
 
-   #load balancing algorithm: run locally if below threshold, else redirect request to lowest absolute load of discovered services
-    # fetch cache
+    # load balancing algorithm: run locally if below threshold
+    # else redirect request to lowest absolute load of discovered services
 
+    # check if cached, else build service knowledge from Service.discovery
     syscache = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
+    service_info = syscache[:services][params[:id]]
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
     if Service::APPS[params[:id]].nil?
-        render :action => "noservice"
-    elsif Service.run_local(params[:id], syscache[:services][params[:id]][:host_policy][`hostname`.strip], syscache[:machinepolicy], syscache[:services][params[:id]][:threshold])
-       puts "runlocal true"
+      render :action => "noservice"
+    elsif Service.run_local(params[:id],service_info[:host_policy][`hostname`.strip], syscache[:machinepolicy], service_info[:threshold])
+      puts "runlocal true"
       redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
     else
-        minload = Service.minload(syscache[:services][params[:id]], syscache[:machinepolicy], Service::APPS[params[:id]].first)
-        if !minload
-            render :action =>  "noservice"
-        else
-             redirect_to minload 
-        end
-
+      minload = Service.minload(service_info, syscache[:machinepolicy], Service::APPS[params[:id]].first)
+      if !minload
+        render :action =>  "noservice"
+      else
+        redirect_to minload
+      end
     end
-
-end
-
+  end
 
   # GET /services/list
   def list
