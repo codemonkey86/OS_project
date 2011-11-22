@@ -65,34 +65,38 @@ class Service < ActiveRecord::Base
     cache_me = {
       :timestamp => nil,
       :machinepolicy => nil,
-      :services => {
-          :host_policy => Hash.new{|hash,key| hash[key] = nil},
-          :threshold => nil
-      }
-    }
+         :services =>  Hash.new {|hash,key|
+                            hash[key] = {:host_policy => Hash.new{|hash,key|
+                                          hash[key] = nil},
+                                         :threshold => nil}
+                           }
+   }
 
-    serviceload = {}
+
+    serviceload = Hash.new(0)
     # remote call to services/list
     if !nmap.empty?
       nmap.peach do |box|
         json_out = net_get("http://#{box}:3000/services/list") || "[]"
         #json should be array of (servicename, policy) tuples
+        puts "TESTING" + json_out
         if !JSON.parse(json_out).empty?
           JSON.parse(json_out).peach do |namepolicy|
             cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
-            serviceload[namepolicy.first] +=
+              serviceload[namepolicy.first] +=
               (net_get("http://#{box}:#{Service::APPS[namepolicy.first].first}/load").to_f || 0)
           end
         end
       end
     end
+ 
+    puts cache_me[:services]
+   if !cache_me[:services].keys.empty?
+      cache_me[:services].keys.peach do |sname| 
+         cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
+       end
+   end
 
-    if !cache_me[:services].keys.empty?
-      cache_me[:services].keys.peach do |sname|
-        cache_me[:services][sname][:threshold] =
-          serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
-      end
-    end
 
     cache_me[:timestamp] = DateTime.now
     cache_me

@@ -33,7 +33,7 @@ class ServicesController < ApplicationController
     syscache = Rails.cache.fetch(Service.cache_key, :timeout => 1.hour) {Service.discovery}
     service_info = syscache[:services][params[:id]]
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
-    if Service::APPS[params[:id]].nil?
+    if Service::APPS[params[:id]].nil? || service_info.nil?
       render :action => "noservice"
     elsif Service.run_local(params[:id],service_info[:host_policy][`hostname`.strip], syscache[:machinepolicy], service_info[:threshold])
       puts "runlocal true"
