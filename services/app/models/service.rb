@@ -29,6 +29,7 @@ class Service < ActiveRecord::Base
     host = nil
     if !scache[:host_policy].empty?
       scache[:host_policy].keys.peach do |hostkey|
+        puts "TEST HREE" + hostkey + port
         load = Service.net_get("http://#{hostkey}:#{port}/load")
         puts "load" + load.to_s + "low" + low.to_s
         if load && (load.to_f < low) && self.policymatch(scache[:host_policy][hostkey], policyreq)
@@ -79,7 +80,7 @@ class Service < ActiveRecord::Base
       nmap.peach do |box|
         json_out = net_get("http://#{box}:3000/services/list") || "[]"
         #json should be array of (servicename, policy) tuples
-        puts "TESTING" + json_out
+        puts "TESTING" + json_out + box
         if !JSON.parse(json_out).empty?
           JSON.parse(json_out).peach do |namepolicy|
             cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
