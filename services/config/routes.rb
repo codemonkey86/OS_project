@@ -34,7 +34,7 @@ ActionController::Routing::Routes.draw do |map|
   map.root :controller => "services"
 
   # should eventually set the narrowed down restful we support with :only
-  map.resources :services, :collection => {:list => :get, :noservice => :get}
+  map.resources :services, :collection => {:list => :get, :noservice => :get, :sysload => :get}
 
   # See how all your routes lay out with "rake routes"
 

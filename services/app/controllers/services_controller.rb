@@ -60,6 +60,22 @@ class ServicesController < ApplicationController
   # GET /services/new
   def new
   end
+  
+  #this method is an interface for running metrics  and easily find the system load
+  def sysload
+    sysmem = 0 
+    # the pops here is to not include the two "process" found with ps the command itself which are gone by time pmap occurs
+    pid_array =  `ps -ef | grep java`.split(/\n/)
+    pid_array.pop
+    pid_array.pop
+    puts pid_array.last.to_s
+    pid_array.each do |jproc|
+         pid = jproc.match(/.+?([0-9]+)/)[1].to_i    #pid
+         sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0) / (1024* `free -mt`.match(/Mem:\s*([0-9]+)/)[1].to_f)
+    end
+    
+      render :text => sysmem
+  end
 
   # POST /services
   # used to save cache state may move to new if can't hit this
