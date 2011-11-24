@@ -1,3 +1,8 @@
+#We calculate the load as an average of the system and process memory usage (calculated as % of system max)
+#Also factored in is the # of connections to the port app is running on
+#The influence of this is weighted heavily to ensure demonstration will show load changes after a reasonalbe # of requests,
+#even if machines start out with significantly different loads
+
 class LoadController < ApplicationController
   def index
     # # of sessions and memory usage, measured as % of system memory

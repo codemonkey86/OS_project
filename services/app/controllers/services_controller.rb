@@ -1,3 +1,6 @@
+#This is the primary controller that contains the load balancing algorithm,
+# determines our restful API, and contains a method to calculate the machine load
+
 require 'peach'
 require 'json'
 class ServicesController < ApplicationController
@@ -73,7 +76,7 @@ class ServicesController < ApplicationController
          pid = jproc.match(/.+?([0-9]+)/)[1].to_i    #pid
          sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0) / (1024* `free -mt`.match(/Mem:\s*([0-9]+)/)[1].to_f)
     end
-    
+     
       render :text => sysmem
   end
 
