@@ -66,16 +66,18 @@ request["steve-laptop"] = Hash.new(0)
 request["endlesswaltz"] = Hash.new(0)
 servicecount = Hash.new(0)
   
-max = 10
+max = 100
 
 requests = 0
+success = 0
+time = 0
 master = []
 endlesswaltz = []
 stevelaptop = []
 error_urls = []
 while requests < max 
      requests += 1
-     if   requests % 2 == 0
+     if   requests % 10 == 0
        # every 10 requests  build up arrays to then analyze later, figure out timing
        load = curl_load("http://" + machinehash[0].to_s + ":3000/services/sysload")
        master << load if load
@@ -84,7 +86,7 @@ while requests < max
        load = curl_load("http://" + machinehash[2].to_s + ":3000/services/sysload")
        stevelaptop << load if load
     end
-    url = "http://" + machinehash[rand(3)].to_s + ":3000/services/"  + servicehash[rand(1)].to_s
+    url = "http://" + machinehash[rand(3)].to_s + ":3000/services/"  + servicehash[rand(4)].to_s
     name = url.match(/services\/(.+)/)[1]
     servicecount[name] += 1 
    
@@ -98,9 +100,10 @@ while requests < max
           request[host][name] += 1   #first index into hash is machine that served up the service
           # update the count of requests handled by service and given machine
           # count total # of service requests
-      
+          time += c.total_time
+          success +=1
           newurl = c.body_str.match(/http:\/\/.+?\/[A-Za-z]+/)[0]
-
+          
           # http_put at the redirecte d urls
           pi_put(newurl) if name.include?("pi")
           quad_put(newurl) if name.include?("quad")
@@ -117,6 +120,7 @@ while requests < max
      sleep 5 
 end
 
+time = time/success
 
 
 
