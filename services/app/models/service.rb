@@ -1,3 +1,7 @@
+# This is our primary model for the project.  Arguably the most important method is in here: discovery
+# this method is called on cache miss, and is where we establish what the hash containing service information looks like
+# it also contains helper methods (run_local and min_load) for load balancing 
+
 require 'peach'
 require 'net/http/persistent'
 class Service < ActiveRecord::Base
@@ -62,7 +66,9 @@ class Service < ActiveRecord::Base
 
   ##
   # returns a populated services object, generally for cacheing
-  def self.discovery  #TODO: needs to be tested for newly designed hash
+  def self.discovery  
+    #outer index is either timestamp, machine policy or services
+    #inner service hash maps threshold and array of host_policy tuples to a service
     cache_me = {
       :timestamp => nil,
       :machinepolicy => nil,
@@ -147,8 +153,7 @@ class Service < ActiveRecord::Base
   # wrapper to catch any errors for connections
   # input: url to connect to
   # output: false on error or curb response otherwise
-  # TODO: would need to give back obj eventually- return a tuple status (curb respose or false,  object (or nil in case of false))
-  #problem: hangs on localhost:3000, only needed for services/list and get cache?
+ 
   def self.net_get(url)
     if url.include?("#{`hostname`.strip}")  && url.include?(":3000")
       if url.include?("list")
