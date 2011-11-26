@@ -11,6 +11,7 @@ gem 'activerecord-jdbcsqlite3-adapter'
 gem 'json'
 gem 'net-http-persistent'
 gem 'peach'
+gem 'nokogiri'
 
 # To use debugger
 # gem 'ruby-debug'
