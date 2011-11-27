@@ -35,7 +35,12 @@ class Policy
   # sevices required policies
   # input: currently supported policies and xml to test against
   def can_talk?(supported)
-
+    diff = self.needs - supported
+    if self.kind == 'all'
+      diff.empty?
+    else
+      diff.size < self.needs.size
+    end
   end
 
   ##
