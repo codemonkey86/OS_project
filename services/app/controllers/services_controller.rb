@@ -38,15 +38,15 @@ class ServicesController < ApplicationController
     #without this condition the service gets added incorrectly to local cache
     #NOTE: this cannot be turned into online if, as soon as the assignment is scene, cache is messed up
     if syscache[:services].keys.include?(params[:id])
-        service_info = syscache[:services][params[:id]] 
+        service_info = syscache[:services][params[:id]]
     end
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
     if Service::APPS[params[:id]].nil? || service_info.nil?
       render :action => "noservice"
     elsif Service.run_local(params[:id],service_info[:host_policy][`hostname`.strip], syscache[:machinepolicy], service_info[:threshold])
-      redirect_to "http://localhost:#{Service::APPS[params[:id]].first}/#{params[:id]}"
+      redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
     else
-      minload = Service.minload(service_info, syscache[:machinepolicy], Service::APPS[params[:id]].first)
+      minload = Service.minload(service_info, syscache[:machinepolicy], Service::APPS[params[:id]])
       if !minload
         render :action =>  "noservice"
       else
@@ -63,10 +63,10 @@ class ServicesController < ApplicationController
   # GET /services/new
   def new
   end
-  
+
   #this method is an interface for running metrics  and easily find the system load
   def sysload
-    sysmem = 0 
+    sysmem = 0
     # the pops here is to not include the two "process" found with ps the command itself which are gone by time pmap occurs
     pid_array =  `ps -ef | grep java`.split(/\n/)
     pid_array.pop
@@ -76,7 +76,7 @@ class ServicesController < ApplicationController
          pid = jproc.match(/.+?([0-9]+)/)[1].to_i    #pid
          sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0) / (1024* `free -mt`.match(/Mem:\s*([0-9]+)/)[1].to_f)
     end
-     
+
       render :text => sysmem
   end
 

@@ -1,6 +1,6 @@
 # This is our primary model for the project.  Arguably the most important method is in here: discovery
 # this method is called on cache miss, and is where we establish what the hash containing service information looks like
-# it also contains helper methods (run_local and min_load) for load balancing 
+# it also contains helper methods (run_local and min_load) for load balancing
 
 require 'peach'
 require 'net/http/persistent'
@@ -8,10 +8,10 @@ class Service < ActiveRecord::Base
 
  #TODO: policies to be populated from reading XML
   APPS = {
-    'pi' => ['3141', 'pipoolicy'],
-    'fib' => ['3001','fibpolicy'],
-    'convert' => ['1210', 'convertpolicy'],
-    'quad' => ['4416', 'quadpolicy']
+    'pi' => '3141',
+    'fib' => '3001',
+    'convert' => '1210',
+    'quad' => '4416'
   }
   CACHE_KEY = 'discovered'
 
@@ -21,7 +21,7 @@ class Service < ActiveRecord::Base
 
   #check local balance, checks if service can be run and load is below threshold else returns false
   def self.run_local(servicename, servicepolicy, machinepolicy, threshold)
-    load = net_get("http://localhost:#{Service::APPS[servicename].first}/load")
+    load = net_get("http://localhost:#{Service::APPS[servicename]}/load")
     load &&  (load.to_f < threshold)  && policymatch(servicepolicy,machinepolicy)
   end
 
@@ -58,7 +58,8 @@ class Service < ActiveRecord::Base
     s = []
     unless Service::APPS.keys.empty?
       Service::APPS.keys.peach do |namepolicy|
-        s << [namepolicy, Service::APPS[namepolicy].last] if Service.up?(namepolicy)
+        xml = get_policies(namepolicy)
+        s << [namepolicy, Policy.new(xml)] if xml
       end
     end
     s
@@ -66,7 +67,7 @@ class Service < ActiveRecord::Base
 
   ##
   # returns a populated services object, generally for cacheing
-  def self.discovery  
+  def self.discovery
     #outer index is either timestamp, machine policy or services
     #inner service hash maps threshold and array of host_policy tuples to a service
     cache_me = {
@@ -91,15 +92,15 @@ class Service < ActiveRecord::Base
           JSON.parse(json_out).peach do |namepolicy|
             cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
               serviceload[namepolicy.first] +=
-              (net_get("http://#{box}:#{Service::APPS[namepolicy.first].first}/load").to_f || 0)
+              (net_get("http://#{box}:#{Service::APPS[namepolicy.first]}/load").to_f || 0)
           end
         end
       end
     end
- 
+
     puts cache_me[:services]
    if !cache_me[:services].keys.empty?
-      cache_me[:services].keys.peach do |sname| 
+      cache_me[:services].keys.peach do |sname|
          cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
        end
    end
@@ -109,12 +110,10 @@ class Service < ActiveRecord::Base
     cache_me
   end
 
-  def self.up?(name,host='localhost')
-    if !net_get("http://#{host}:#{Service::APPS[name].first}")
-      return false
-    else
-      return true
-    end
+  ##
+  # attempts to get policies from another service
+  def self.get_policies(name)
+    net_get("http://localhost:#{Service::APPS[name]}/policy")
   end
 
   def self.cache_key
@@ -153,7 +152,7 @@ class Service < ActiveRecord::Base
   # wrapper to catch any errors for connections
   # input: url to connect to
   # output: false on error or curb response otherwise
- 
+
   def self.net_get(url)
     if url.include?("#{`hostname`.strip}")  && url.include?(":3000")
       if url.include?("list")
