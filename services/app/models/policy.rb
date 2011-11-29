@@ -14,6 +14,7 @@ class Policy
   # needed to support to talk to another service
   # input: ws_policy xml
   def initialize(xml)
+   
     doc = Nokogiri::XML(xml)
     @needs = []
     doc.xpath('//wsp:Policy').children.each do |x|

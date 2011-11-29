@@ -10,7 +10,7 @@
 #     The servicecount hash which maps the # of requests made for each service
 #     Error urls which keeps track of URL's that either failed to connect, or connected, but could not find service
 
-
+##SCRIPT REQUIRES RUBY  1.8.7 for curb to work!
 require 'rubygems'
 require 'curb'
 require 'json'
@@ -50,7 +50,7 @@ end
 
 def quad_put(url)
   begin
-    c = Curl::Easy.http_post(url, Curl::PostField.content('ainput', rand(10**10)+1,), Curl::PostField.content('binput', rand(10**10)+1), Curl::PostField.content('cinput', rand(10**10)+1))
+    c = Curl::Easy.http_post(url, Curl::PostField.content('ainput', rand(10**10)+1), Curl::PostField.content('binput', rand(10**10)+1), Curl::PostField.content('cinput', rand(10**10)+1))
   rescue Exception => e
     return false
   end
@@ -76,8 +76,8 @@ endlesswaltz = []
 stevelaptop = []
 error_urls = []
 while requests < max 
-     requests += 1
-     if   requests % 10 == 0
+     requests += 10
+     if   requests % 1 == 0
        # every 10 requests  build up arrays to then analyze later, figure out timing
        load = curl_load("http://" + machinehash[0].to_s + ":3000/services/sysload")
        master << load if load
@@ -89,7 +89,7 @@ while requests < max
     url = "http://" + machinehash[rand(3)].to_s + ":3000/services/"  + servicehash[rand(4)].to_s
     name = url.match(/services\/(.+)/)[1]
     servicecount[name] += 1 
-   
+    puts "REQUESTING: " + url
     begin
        c = Curl::Easy.http_get(url) #TODO: change to http put with random parameters
        if c.body_str.include?("not available")
@@ -102,6 +102,7 @@ while requests < max
           # count total # of service requests
           time += c.total_time
           success +=1
+          puts "success"
           newurl = c.body_str.match(/http:\/\/.+?\/[A-Za-z]+/)[0]
           
           # http_put at the redirecte d urls
@@ -122,5 +123,9 @@ end
 
 time = time/success
 
+
+puts "Average response time: " + time.to_s
+puts "Services Requested: " + servicecount.inspect
+puts "Response breakdown: " + request.inspect
 
 
