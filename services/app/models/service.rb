@@ -13,6 +13,16 @@ class Service < ActiveRecord::Base
     'convert' => '1210',
     'quad' => '4416'
   }
+  
+  LOADS = {
+     'pi' => 0,
+     'fib' => 0,
+     'convert' => 0,
+     'quad' => 0
+  }
+ 
+  LOAD_PCT = 0.25
+
   CACHE_KEY = 'discovered'
 
   serialize :state
@@ -21,8 +31,14 @@ class Service < ActiveRecord::Base
 
   #check local balance, checks if service can be run and load is below threshold else returns false
   def self.run_local(servicename, servicepolicy, machinepolicy, threshold)
-    load = net_get("http://localhost:#{Service::APPS[servicename]}/load")
-    load &&  (load.to_f < threshold)  && policymatch(servicepolicy,machinepolicy)
+    load = net_get("http://localhost:#{Service::APPS[servicename]}/load").to_f
+    if load < Service::LOADS[servicename] && load/Service::LOADS[servicename] > Service::LOAD_PCT
+         Service::LOADS[servicename] = (load + Service::LOADS[servicename])/2
+    end
+    if Service::LOADS[servicename] < load && Service::LOADS[servicename]/load > Service::LOAD_PCT
+          Service::LOADS[servicename] = (load + Service::LOADS[servicename])/2
+    end 
+     load &&  (load < threshold)  && policymatch(servicepolicy,machinepolicy)
   end
 
   # find machine that is up with absolute minimum load and appropriate policy
@@ -49,7 +65,11 @@ class Service < ActiveRecord::Base
   end
 
   def self.getindex
-    Rails.cache.read(Service.cache_key)
+    cache = Rails.cache.read(Service.cache_key)
+    Service::LOADS.keys.peach do |name|
+         Service::LOADS[name] = cache[:services][name][:threshold]
+    end
+    cache
   end
 
   def self.getlist
@@ -100,7 +120,8 @@ class Service < ActiveRecord::Base
    if !cache_me[:services].keys.empty?
       cache_me[:services].keys.peach do |sname|
          cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
-       end
+         Service::LOADS[sname] = cache_me[:services][sname][:threshold]
+      end
    end
 
 

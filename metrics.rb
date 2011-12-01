@@ -76,8 +76,8 @@ endlesswaltz = []
 stevelaptop = []
 error_urls = []
 while requests < max 
-     requests += 10
-     if   requests % 1 == 0
+     requests += 1
+     if   requests % 10 == 0
        # every 10 requests  build up arrays to then analyze later, figure out timing
        load = curl_load("http://" + machinehash[0].to_s + ":3000/services/sysload")
        master << load if load
