@@ -31,6 +31,7 @@ class ServicesController < ApplicationController
 
     # TODO: decide if empty array or nil is better
     req_pol = params[:policies] ? params[:policies].split(',') : []
+    puts "Using " + req_pol.inspect + " as polices from user"
 
     # load balancing algorithm: run locally if below threshold
     # else redirect request to lowest absolute load of discovered services

@@ -35,12 +35,14 @@ class Policy
   # test to see if current supported policies also cover another
   # sevices required policies
   # input: currently requested policies
-  def can_talk?(requested)
-    diff = self.needs - requested
-    if self.kind == 'all'
+  def self.can_talk?(pol_hash,requested)
+    return true if requested.empty?
+
+    diff = pol_hash["needs"] - requested
+    if pol_hash["kind"] == 'all'
       diff.empty?
     else
-      diff.size < self.needs.size
+      diff.size < pol_hash["needs"].size
     end
   end
 

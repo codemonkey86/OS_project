@@ -38,7 +38,7 @@ class Service < ActiveRecord::Base
     if Service::LOADS[servicename] < load && Service::LOADS[servicename]/load > Service::LOAD_PCT
           Service::LOADS[servicename] = (load + Service::LOADS[servicename])/2
     end
-     load && (load < threshold) && servicepolicy.can_talk?(req_pol)
+     load && (load < threshold) && Polict.can_talk?(servicepolicy,req_pol)
   end
 
   # find machine that is up with absolute minimum load and appropriate policy
@@ -50,7 +50,7 @@ class Service < ActiveRecord::Base
     if !scache[:host_policy].empty?
       scache[:host_policy].keys.peach do |hostkey|
         load = Service.net_get("http://#{hostkey}:#{port}/load")
-        if load && (load.to_f < low) && scache[:host_policy][hostkey].can_talk?(req_pol)
+        if load && (load.to_f < low) && Policy.can_talk?(scache[:host_policy][hostkey],req_pol)
           low = load.to_f
           host = hostkey
         end
@@ -185,6 +185,6 @@ class Service < ActiveRecord::Base
 
   #dummy cheat
   def self.nmap
-    %w(master steve-laptop)
+    %w(endlesswaltz steve-laptop)
   end
 end
