@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This should be used to startup a random number of services
 # as every other directory here is a rails application
 # should eventually add a line /etc/rc.local to source this file

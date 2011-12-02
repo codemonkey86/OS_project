@@ -29,6 +29,9 @@ class ServicesController < ApplicationController
       redirect_to root_path and return
     end
 
+    # TODO: decide if empty array or nil is better
+    req_pol = params[:policies] ? params[:policies].split(',') : []
+
     # load balancing algorithm: run locally if below threshold
     # else redirect request to lowest absolute load of discovered services
 
@@ -43,10 +46,10 @@ class ServicesController < ApplicationController
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
     if Service::APPS[params[:id]].nil? || service_info.nil?
       render :action => "noservice"
-    elsif Service.run_local(params[:id],service_info[:host_policy][`hostname`.strip], syscache[:machinepolicy], service_info[:threshold])
+  elsif Service.run_local(params[:id],service_info[:host_policy][`hostname`.strip], req_pol, service_info[:threshold])
       redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
     else
-      minload = Service.minload(service_info, syscache[:machinepolicy], Service::APPS[params[:id]])
+      minload = Service.minload(service_info, req_pol, Service::APPS[params[:id]])
       if !minload
         render :action =>  "noservice"
       else

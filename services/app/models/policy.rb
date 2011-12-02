@@ -14,7 +14,7 @@ class Policy
   # needed to support to talk to another service
   # input: ws_policy xml
   def initialize(xml)
-   
+
     doc = Nokogiri::XML(xml)
     @needs = []
     doc.xpath('//wsp:Policy').children.each do |x|
@@ -34,9 +34,9 @@ class Policy
   ##
   # test to see if current supported policies also cover another
   # sevices required policies
-  # input: currently supported policies and xml to test against
-  def can_talk?(supported)
-    diff = self.needs - supported
+  # input: currently requested policies
+  def can_talk?(requested)
+    diff = self.needs - requested
     if self.kind == 'all'
       diff.empty?
     else
