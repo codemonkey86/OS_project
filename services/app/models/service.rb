@@ -175,7 +175,7 @@ class Service < ActiveRecord::Base
       if url.include?("list")
         return self.getlist.to_json
       else
-        return self.index.to_json
+        return self.getindex.to_json
       end
     end
 
