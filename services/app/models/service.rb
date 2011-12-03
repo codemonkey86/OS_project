@@ -30,8 +30,9 @@ class Service < ActiveRecord::Base
   validates_presence_of :state
 
   #check local balance, checks if service can be run and load is below threshold else returns false
-  def self.run_local(servicename, servicepolicy, req_pol, threshold)
+  def self.run_local(servicename, servicepolicy, req_pol)
     load = net_get("http://localhost:#{Service::APPS[servicename]}/load").to_f
+    threshold = Service::LOADS[servicename]
     if load < Service::LOADS[servicename] && load/Service::LOADS[servicename] > Service::LOAD_PCT
          Service::LOADS[servicename] = (load + Service::LOADS[servicename])/2
     end
