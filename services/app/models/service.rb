@@ -70,10 +70,13 @@ class Service < ActiveRecord::Base
 
   def self.getlist
     s = []
+    puts "Test start"
     unless Service::APPS.keys.empty?
-      Service::APPS.keys.peach do |namepolicy|
+      puts "test end"
+      Service::APPS.keys.each do |namepolicy|
         xml = get_policies(namepolicy)
         s << [namepolicy, Policy.new(xml)] if xml
+        puts "TESTING" + Policy.new(xml).inspect
       end
     end
     s

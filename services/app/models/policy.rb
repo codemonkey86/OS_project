@@ -4,7 +4,7 @@
 # to determine necessary requirements to have two services talk
 # to each other
 require 'nokogiri'
-class Policy < ActiveRecord::Base
+class Policy
   WS_XSD_PATH = RAILS_ROOT + '/lib/ws_policy/ws_policy.xsd'
   KINDS = %w(and one)
 
@@ -14,21 +14,27 @@ class Policy < ActiveRecord::Base
   # needed to support to talk to another service
   # input: ws_policy xml
   def initialize(xml)
-
     doc = Nokogiri::XML(xml)
+   
     @needs = []
+   
     doc.xpath('//wsp:Policy').children.each do |x|
+      
       name = x.name
       if name == 'All'
         @kind = 'all'
       else
         @kind = 'one'
       end
-
+     
       x.children.each do |pol|
+       
         @needs << pol.name
+      
       end
+      
     end
+    
   end
 
   ##
