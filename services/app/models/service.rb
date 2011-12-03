@@ -143,7 +143,7 @@ class Service < ActiveRecord::Base
   # them to peach other to determine who has the newest overview
   # which will be sent back to everyone
   #TODO, don't return to winner
-  def sync
+  def self.sync
     caches = []
     return if nmap.empty?
 
