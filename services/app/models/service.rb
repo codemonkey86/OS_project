@@ -73,7 +73,7 @@ class Service < ActiveRecord::Base
     puts "Test start"
     unless Service::APPS.keys.empty?
       puts "test end"
-      Service::APPS.keys.each do |namepolicy|
+      Service::APPS.keys.peach do |namepolicy|
         xml = get_policies(namepolicy)
         s << [namepolicy, Policy.new(xml)] if xml
         puts "TESTING" + Policy.new(xml).inspect
