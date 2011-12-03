@@ -1,0 +1,23 @@
+sudo apt-get install curl git gitg openssh-server libcurl4-openssl-dev
+
+#rvm
+bash < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer )
+echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # Load RVM function' >> ~/.bash_profile
+# and for ruby
+sudo apt-get install build-essential openssl libreadline6 libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-0 libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion
+rvm install ruby
+# and for jruby
+apt-get install g++ openjdk-6-jre-headless
+rvm install jruby-1.6.4
+
+# git setup
+ssh-keygen -t rsa -C "peberhardt@gmail.com"
+log into github and add your pub key
+git config --global user.name "Phil Eberhardt"
+git config --global user.email "peberhardt@gmail.com"
+
+# gedit setup with official gmate package and another for extra plugins
+sudo apt-add-repository ppa:ubuntu-on-rails/ppa
+sudo apt-get update
+sudo apt-get install gedit-gmate
+sudo apt-get install gedit-plugins
