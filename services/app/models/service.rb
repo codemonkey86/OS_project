@@ -38,7 +38,7 @@ class Service < ActiveRecord::Base
     if Service::LOADS[servicename] < load && Service::LOADS[servicename]/load > Service::LOAD_PCT
           Service::LOADS[servicename] = (load + Service::LOADS[servicename])/2
     end
-     load && (load < threshold) && Polict.can_talk?(servicepolicy,req_pol)
+     load && (load < threshold) && Policy.can_talk?(servicepolicy,req_pol)
   end
 
   # find machine that is up with absolute minimum load and appropriate policy
