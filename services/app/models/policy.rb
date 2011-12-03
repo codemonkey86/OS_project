@@ -4,7 +4,7 @@
 # to determine necessary requirements to have two services talk
 # to each other
 require 'nokogiri'
-class Policy
+class Policy < ActiveRecord::Base
   WS_XSD_PATH = RAILS_ROOT + '/lib/ws_policy/ws_policy.xsd'
   KINDS = %w(and one)
 

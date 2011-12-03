@@ -51,7 +51,7 @@ class Service < ActiveRecord::Base
     if !scache[:host_policy].empty?
       scache[:host_policy].keys.peach do |hostkey|
         load = Service.net_get("http://#{hostkey}:#{port}/load")
-        if load && (load.to_f < low) && Policy.can_talk?(scache[:host_policy][hostkey],req_pol)
+         if load && (load.to_f < low) && Policy.can_talk?(scache[:host_policy][hostkey],req_pol)
           low = load.to_f
           host = hostkey
         end
