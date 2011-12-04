@@ -67,7 +67,7 @@ request["endlesswaltz"] = Hash.new(0)
 request["endlessjig"] = Hash.new(0)
 servicecount = Hash.new(0)
   
-max = 50
+max = 75
 
 requests = 0
 success = 0
