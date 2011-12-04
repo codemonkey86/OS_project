@@ -77,7 +77,7 @@ class Service < ActiveRecord::Base
       Service::APPS.keys.each do |namepolicy|
         xml = get_policies(namepolicy)
         s << [namepolicy, Policy.new(xml)] if xml
-        puts "TESTING" + Policy.new(xml).inspect
+        puts "TESTING" + Policy.new(xml).inspect if xml
       end
     end
     s
