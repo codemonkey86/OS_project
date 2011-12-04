@@ -62,6 +62,7 @@ class Service < ActiveRecord::Base
 
   def self.getindex
     cache = Rails.cache.read(Service.cache_key) || {}
+    puts 'LIST CACHE ' + cache.inspect
     return cache if cache.empty?
     @@LOADS.keys.peach do |name|
          @@LOADS[name] = cache[:services][name][:threshold]

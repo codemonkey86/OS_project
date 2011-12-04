@@ -39,7 +39,7 @@ class ServicesController < ApplicationController
     end
 
     puts 'CACHING ' + caches.inspect
-    newest = caches.sort{|a,b| a.last[:timestamp] <=> b.last[:timestamp]}.last
+    newest = caches.sort{|a,b| a.last['timestamp'] <=> b.last['timestamp']}.last
     mapped.delete_if{|x| newest.first == x}
 
     # do a post to services/set_cache
@@ -48,10 +48,30 @@ class ServicesController < ApplicationController
 
     puts 'mapped ' + mapped.inspect
 
+puts 'NEWWWWW ' + newest.last.inspect
+#uri = URI 'http://example.com/awesome/web/service'
+
+#http = Net::HTTP::Persistent.new 'my_app_name'
+
+# perform a GET
+#response = http.request uri
+
+# create a POST
+#post_uri = uri + 'create'
+#post = Net::HTTP::Post.new post_uri.path
+#post.set_form_data 'some' => 'cool data'
+
+# perform the POST, the URI is always required
+#response http.request post_uri, post
+
     # perform the POST, the URI is always required
     mapped.peach do |box|
-      post_uri = URI "http://#{box}:3000/set_cache"
-      Net::HTTP::Persistent.new.request post_uri, post
+      post_uri = URI "http://#{box}:3000/services/set_cache"
+      if box == `hostname`.strip
+        Rails.cache.write(Service.cache_key,newest.last)
+      else
+        Net::HTTP::Persistent.new(box).request post_uri, post
+      end
     end
   end
 
