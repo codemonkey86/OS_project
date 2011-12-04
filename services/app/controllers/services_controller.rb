@@ -100,13 +100,13 @@ puts 'NEWWWWW ' + newest.last.inspect
     service_info = nil
     #without this condition the service gets added incorrectly to local cache
     #NOTE: this cannot be turned into online if, as soon as the assignment is scene, cache is messed up
-    if syscache[:services].keys.include?(params[:id])
-        service_info = syscache[:services][params[:id]]
+    if syscache['services'].keys.include?(params[:id])
+        service_info = syscache['services'][params[:id]]
     end
     #run_local (service_name, service_policy on "localhost",  machine_policy, service_load_avg)
     if Service::APPS[params[:id]].nil? || service_info.nil?
       render :action => "noservice"
-  elsif Service.run_local(params[:id],service_info[:host_policy][`hostname`.strip], req_pol)
+  elsif Service.run_local(params[:id],service_info['host_policy'][`hostname`.strip], req_pol)
       redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
     else
       minload = Service.minload(service_info, req_pol, Service::APPS[params[:id]])

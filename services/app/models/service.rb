@@ -48,10 +48,10 @@ class Service < ActiveRecord::Base
     # taken care of indirectly by checking balance
     low = 10**100
     host = nil
-    if !scache[:host_policy].empty?
-      scache[:host_policy].keys.peach do |hostkey|
+    if !scache['host_policy'].empty?
+      scache['host_policy'].keys.peach do |hostkey|
         load = Service.net_get("http://#{hostkey}:#{port}/load")
-         if load && (load.to_f < low) && Policy.can_talk?(scache[:host_policy][hostkey],req_pol)
+         if load && (load.to_f < low) && Policy.can_talk?(scache['host_policy'][hostkey],req_pol)
           low = load.to_f
           host = hostkey
         end
@@ -65,7 +65,7 @@ class Service < ActiveRecord::Base
     puts 'LIST CACHE ' + cache.inspect
     return cache if cache.empty?
     @@LOADS.keys.peach do |name|
-         @@LOADS[name] = cache[:services][name][:threshold]
+         @@LOADS[name] = cache['services'][name]['threshold']
     end
     cache
   end
@@ -90,11 +90,11 @@ class Service < ActiveRecord::Base
     #outer index is either timestamp, machine policy or services
     #inner service hash maps threshold and array of host_policy tuples to a service
     cache_me = {
-      :timestamp => nil,
-      :services =>  Hash.new {|h,k|
-        h[k] = {:host_policy => Hash.new{|hash,key|
+      'timestamp' => nil,
+      'services' =>  Hash.new {|h,k|
+        h[k] = {'host_policy' => Hash.new{|hash,key|
         hash[key] = nil},
-        :threshold => nil}
+        'threshold' => nil}
       }
     }
 
@@ -108,7 +108,7 @@ class Service < ActiveRecord::Base
         puts "TESTING" + json_out + box
         if !JSON.parse(json_out).empty?
           JSON.parse(json_out).peach do |namepolicy|
-            cache_me[:services][namepolicy.first][:host_policy][box] = namepolicy.last
+            cache_me['services'][namepolicy.first]['host_policy'][box] = namepolicy.last
               serviceload[namepolicy.first] +=
               (net_get("http://#{box}:#{Service::APPS[namepolicy.first]}/load").to_f || 0)
           end
@@ -116,16 +116,16 @@ class Service < ActiveRecord::Base
       end
     end
 
-    puts cache_me[:services]
-   if !cache_me[:services].keys.empty?
-      cache_me[:services].keys.peach do |sname|
-         cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
-         @@LOADS[sname] = cache_me[:services][sname][:threshold]
+    puts cache_me['services']
+   if !cache_me['services'].keys.empty?
+      cache_me['services'].keys.peach do |sname|
+         cache_me['services'][sname]['threshold']  =  serviceload[sname]/cache_me['services'][sname]['host_policy'].keys.size
+         @@LOADS[sname] = cache_me['services'][sname]['threshold']
       end
    end
 
 
-    cache_me[:timestamp] = DateTime.now
+    cache_me['timestamp'] = DateTime.now
     cache_me
   end
 
