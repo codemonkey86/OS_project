@@ -63,8 +63,8 @@ class Service < ActiveRecord::Base
   def self.getindex
     cache = Rails.cache.read(Service.cache_key) || {}
     return cache if cache.empty?
-    Service::LOADS.keys.peach do |name|
-         Service::LOADS[name] = cache[:services][name][:threshold]
+    @@LOADS.keys.peach do |name|
+         @@LOADS[name] = cache[:services][name][:threshold]
     end
     cache
   end
@@ -119,7 +119,7 @@ class Service < ActiveRecord::Base
    if !cache_me[:services].keys.empty?
       cache_me[:services].keys.peach do |sname|
          cache_me[:services][sname][:threshold]  =  serviceload[sname]/cache_me[:services][sname][:host_policy].keys.size
-         Service::LOADS[sname] = cache_me[:services][sname][:threshold]
+         @@LOADS[sname] = cache_me[:services][sname][:threshold]
       end
    end
 
