@@ -38,47 +38,32 @@ class ServicesController < ApplicationController
       end
     end
 
-    puts 'CACHING ' + caches.inspect
     newest = caches.sort{|a,b| a.last['timestamp'] <=> b.last['timestamp']}.last
     mapped.delete_if{|x| newest.first == x}
 
-    # do a post to services/set_cache
-    post = Net::HTTP::Post.new 'services'
-    post.set_form_data 'newest' => newest.last
-
     puts 'mapped ' + mapped.inspect
-
-puts 'NEWWWWW ' + newest.last.inspect
-#uri = URI 'http://example.com/awesome/web/service'
-
-#http = Net::HTTP::Persistent.new 'my_app_name'
-
-# perform a GET
-#response = http.request uri
-
-# create a POST
-#post_uri = uri + 'create'
-#post = Net::HTTP::Post.new post_uri.path
-#post.set_form_data 'some' => 'cool data'
-
-# perform the POST, the URI is always required
-#response http.request post_uri, post
 
     # perform the POST, the URI is always required
     mapped.peach do |box|
+      # do a post to services/set_cache
       post_uri = URI "http://#{box}:3000/services/set_cache"
+      post = Net::HTTP::Post.new post_uri.path
+      post.set_form_data 'newest' => newest.last.to_json
       if box == `hostname`.strip
         Rails.cache.write(Service.cache_key,newest.last)
       else
-        Net::HTTP::Persistent.new(box).request post_uri, post
+        http = Net::HTTP::Persistent.new box
+        http.request post_uri, post
       end
     end
+    render :text => "Caches should be synced, with #{newest.first} as the winner!"
   end
 
   # GET /services/set_cache
   # jump straight to cache writing via passed param
   def set_cache
     Rails.cache.write(Service.cache_key,JSON.parse(params[:newest]))
+    render :text => 'New cache!'
   end
 
   # GET /services/:service_name
