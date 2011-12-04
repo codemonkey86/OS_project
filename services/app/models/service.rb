@@ -61,7 +61,8 @@ class Service < ActiveRecord::Base
   end
 
   def self.getindex
-    cache = Rails.cache.read(Service.cache_key)
+    cache = Rails.cache.read(Service.cache_key) || {}
+    return cache if cache.empty?
     Service::LOADS.keys.peach do |name|
          Service::LOADS[name] = cache[:services][name][:threshold]
     end
@@ -149,7 +150,7 @@ class Service < ActiveRecord::Base
 
     nmap.peach do |box|
       resp = net_get("http://#{box}:3000")
-      caches << JSON.parse(resp) if resp
+      caches << JSON.parse(resp) if resp && !resp.empty
     end
 
     newest = caches.sort{|a,b| a[:timestamp] <=> b[:timestamp]}.last
