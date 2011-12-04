@@ -138,34 +138,6 @@ class Service < ActiveRecord::Base
     CACHE_KEY
   end
 
-  # TODO: eventually kick this off periodically somehow, script/runner ?
-  ##
-  # This will get all the other box's views of the network and compare
-  # them to peach other to determine who has the newest overview
-  # which will be sent back to everyone
-  #TODO, don't return to winner
-  def self.sync
-    caches = []
-    return if nmap.empty?
-
-    nmap.peach do |box|
-      resp = net_get("http://#{box}:3000")
-      caches << JSON.parse(resp) if resp && !resp.empty
-    end
-
-    newest = caches.sort{|a,b| a[:timestamp] <=> b[:timestamp]}.last
-
-    # do a post to services/set_cache
-    post = Net::HTTP::Post.new 'services'
-    post.set_form_data 'newest' => newest
-
-    # perform the POST, the URI is always required
-    nmap.peach do |box|
-      post_uri = URI "http://#{box}:3000/set_cache"
-      Net::HTTP::Persistent.new.request post_uri, post
-    end
-  end
-
   private
   # wrapper to catch any errors for connections
   # input: url to connect to

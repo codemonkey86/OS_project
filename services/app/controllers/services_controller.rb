@@ -16,6 +16,45 @@ class ServicesController < ApplicationController
   def noservice
   end
 
+  # GET /services/sync
+  # TODO: eventually kick this off periodically somehow, script/runner ?
+  ##
+  # This will get all the other box's views of the network and compare
+  # them to peach other to determine who has the newest overview
+  # which will be sent back to everyone
+  #TODO, don't return to winner
+  def sync
+    caches = []
+    mapped = Service.nmap
+    return if mapped.empty?
+    mapped.delete_if do |box|
+      resp = Service.net_get("http://#{box}:3000")
+      if resp
+        c = JSON.parse(resp)
+        caches << [box,c] unless c.empty?
+        false
+      else
+        true
+      end
+    end
+
+    puts 'CACHING ' + caches.inspect
+    newest = caches.sort{|a,b| a.last[:timestamp] <=> b.last[:timestamp]}.last
+    mapped.delete_if{|x| newest.first == x}
+
+    # do a post to services/set_cache
+    post = Net::HTTP::Post.new 'services'
+    post.set_form_data 'newest' => newest.last
+
+    puts 'mapped ' + mapped.inspect
+
+    # perform the POST, the URI is always required
+    mapped.peach do |box|
+      post_uri = URI "http://#{box}:3000/set_cache"
+      Net::HTTP::Persistent.new.request post_uri, post
+    end
+  end
+
   # GET /services/set_cache
   # jump straight to cache writing via passed param
   def set_cache
