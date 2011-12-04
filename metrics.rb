@@ -108,13 +108,13 @@ while requests < max
           success +=1
           puts "success"
           newurl = c.body_str.match(/http:\/\/.+?\/[A-Za-z]+/)[0]
-          
+          puts "Served by: " + host
           # http_put at the redirecte d urls
           pi_put(newurl) if name.include?("pi")
           quad_put(newurl) if name.include?("quad")
           convert_put(newurl) if name.include?("convert")
           fib_put(newurl) if name.include?("fib")           
-  
+          
   
       end
                          
@@ -132,7 +132,7 @@ puts "Average response time: " + time.to_s
 puts "Services Requested: " + servicecount.inspect
 puts "Response breakdown: " + request.inspect
 puts "Load Arrays:"
-puts "Master" + master.to_s
-puts "Endlesswaltz" + endlesswaltz.to_s
-puts "Endlessjig" + endlessjig.to_s
-puts "Steve-laptop" + stevelaptop.to_s
+puts "Master" + master.inspect
+puts "Endlesswaltz" + endlesswaltz.inspect
+puts "Endlessjig" + endlessjig.inspect
+puts "Steve-laptop" + stevelaptop.inspect
