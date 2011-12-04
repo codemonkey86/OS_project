@@ -92,7 +92,7 @@ class ServicesController < ApplicationController
     if Service::APPS[params[:id]].nil? || service_info.nil?
       render :action => "noservice"
   elsif Service.run_local(params[:id],service_info['host_policy'][`hostname`.strip], req_pol, service_info['threshold'])
-      redirect_to "http://localhost:#{Service::APPS[params[:id]]}/#{params[:id]}"
+      redirect_to "http://" + `hostname`.strip + ":#{Service::APPS[params[:id]]}/#{params[:id]}"
     else
       minload = Service.minload(service_info, req_pol, Service::APPS[params[:id]])
       if !minload
