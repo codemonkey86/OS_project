@@ -59,7 +59,7 @@ end
 
 
 servicehash = {0 => "pi", 1 => "quad", 2 => "fib", 3 => "convert"}
-machinehash = {0 => "master", 1 => "endlesswaltz", 2 => "steve-laptop" 3 => "endlessjig"}
+machinehash = {0 => "master", 1 => "endlesswaltz", 2 => "steve-laptop", 3 => "endlessjig"}
 request = {}
 request["master"] = Hash.new(0)
 request["steve-laptop"] = Hash.new(0)
