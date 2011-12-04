@@ -61,7 +61,8 @@ class Service < ActiveRecord::Base
   end
 
   def self.getindex
-    cache = Rails.cache.read(Service.cache_key)
+    cache = Rails.cache.read(Service.cache_key) || {}
+    return cache if cache.empty?
     Service::LOADS.keys.peach do |name|
          Service::LOADS[name] = cache[:services][name][:threshold]
     end
@@ -76,7 +77,7 @@ class Service < ActiveRecord::Base
       Service::APPS.keys.peach do |namepolicy|
         xml = get_policies(namepolicy)
         s << [namepolicy, Policy.new(xml)] if xml
-        puts "TESTING" + Policy.new(xml).inspect
+        puts "TESTING" + Policy.new(xml).inspect if xml
       end
     end
     s
@@ -149,7 +150,7 @@ class Service < ActiveRecord::Base
 
     nmap.peach do |box|
       resp = net_get("http://#{box}:3000")
-      caches << JSON.parse(resp) if resp
+      caches << JSON.parse(resp) if resp && !resp.empty
     end
 
     newest = caches.sort{|a,b| a[:timestamp] <=> b[:timestamp]}.last
@@ -175,7 +176,7 @@ class Service < ActiveRecord::Base
       if url.include?("list")
         return self.getlist.to_json
       else
-        return self.index.to_json
+        return self.getindex.to_json
       end
     end
 
