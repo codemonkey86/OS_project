@@ -49,7 +49,7 @@ class Service < ActiveRecord::Base
     low = 10**100
     host = nil
     if !scache['host_policy'].empty?
-      scache['host_policy'].keys.peach do |hostkey|
+      scache['host_policy'].keys.each do |hostkey|
         load = Service.net_get("http://#{hostkey}:#{port}/load")
          if load && (load.to_f < low) && Policy.can_talk?(scache['host_policy'][hostkey],req_pol)
           low = load.to_f
@@ -75,7 +75,7 @@ class Service < ActiveRecord::Base
     puts "Test start"
     unless Service::APPS.keys.empty?
       puts "test end"
-      Service::APPS.keys.peach do |namepolicy|
+      Service::APPS.keys.each do |namepolicy|
         xml = get_policies(namepolicy)
         s << [namepolicy, Policy.new(xml)] if xml
         puts "TESTING" + Policy.new(xml).inspect if xml
