@@ -14,7 +14,7 @@ class Service < ActiveRecord::Base
     'quad' => '4416'
   }
 
-  LOADS = {
+  @@LOADS = {
      'pi' => 0,
      'fib' => 0,
      'convert' => 0,
@@ -32,12 +32,12 @@ class Service < ActiveRecord::Base
   #check local balance, checks if service can be run and load is below threshold else returns false
   def self.run_local(servicename, servicepolicy, req_pol)
     load = net_get("http://localhost:#{Service::APPS[servicename]}/load").to_f
-    threshold = Service::LOADS[servicename]
-    if load < Service::LOADS[servicename] && load/Service::LOADS[servicename] > Service::LOAD_PCT
-         Service::LOADS[servicename] = (load + Service::LOADS[servicename])/2
+    threshold = @@LOADS[servicename]
+    if load < @@LOADS[servicename] && load/@@LOADS[servicename] > LOAD_PCT
+         @@LOADS[servicename] = (load + @@LOADS[servicename])/2
     end
-    if Service::LOADS[servicename] < load && Service::LOADS[servicename]/load > Service::LOAD_PCT
-          Service::LOADS[servicename] = (load + Service::LOADS[servicename])/2
+    if @@LOADS[servicename] < load && @@LOADS[servicename]/load > Service::LOAD_PCT
+          @@LOADS[servicename] = (load + @@LOADS[servicename])/2
     end
      load && (load < threshold) && Policy.can_talk?(servicepolicy,req_pol)
   end
@@ -74,7 +74,7 @@ class Service < ActiveRecord::Base
     puts "Test start"
     unless Service::APPS.keys.empty?
       puts "test end"
-      Service::APPS.keys.each do |namepolicy|
+      Service::APPS.keys.peach do |namepolicy|
         xml = get_policies(namepolicy)
         s << [namepolicy, Policy.new(xml)] if xml
         puts "TESTING" + Policy.new(xml).inspect if xml

@@ -59,34 +59,38 @@ end
 
 
 servicehash = {0 => "pi", 1 => "quad", 2 => "fib", 3 => "convert"}
-machinehash = {0 => "master", 1 => "endlesswaltz", 2 => "steve-laptop"}
+machinehash = {0 => "master", 1 => "endlesswaltz", 2 => "steve-laptop" 3 => "endlessjig"}
 request = {}
 request["master"] = Hash.new(0)
 request["steve-laptop"] = Hash.new(0)
 request["endlesswaltz"] = Hash.new(0)
+request["endlessjig"] = Hash.new(0)
 servicecount = Hash.new(0)
   
-max = 100
+max = 50
 
 requests = 0
 success = 0
 time = 0
 master = []
+endlessjig = []
 endlesswaltz = []
 stevelaptop = []
 error_urls = []
 while requests < max 
      requests += 1
-     if   requests % 10 == 0
-       # every 10 requests  build up arrays to then analyze later, figure out timing
+     
+       # every  request  build up arrays to then analyze later, figure out timing
        load = curl_load("http://" + machinehash[0].to_s + ":3000/services/sysload")
        master << load if load
        load = curl_load("http://" + machinehash[1].to_s + ":3000/services/sysload")
        endlesswaltz << load if load
        load = curl_load("http://" + machinehash[2].to_s + ":3000/services/sysload")
        stevelaptop << load if load
-    end
-    url = "http://" + machinehash[rand(3)].to_s + ":3000/services/"  + servicehash[rand(4)].to_s
+       load = curl_load("http://" + machinehash[3].to_s + ":3000/services/sysload")
+       endlessjig << load if load
+
+    url = "http://" + machinehash[rand(4)].to_s + ":3000/services/"  + servicehash[rand(4)].to_s + "?policies=Basic256Rsa15,TripleDesRsa15"
     name = url.match(/services\/(.+)/)[1]
     servicecount[name] += 1 
     puts "REQUESTING: " + url
@@ -127,5 +131,8 @@ time = time/success
 puts "Average response time: " + time.to_s
 puts "Services Requested: " + servicecount.inspect
 puts "Response breakdown: " + request.inspect
-
-
+puts "Load Arrays:"
+puts "Master" + master.to_s
+puts "Endlesswaltz" + endlesswaltz.to_s
+puts "Endlessjig" + endlessjig.to_s
+puts "Steve-laptop" + stevelaptop.to_s
