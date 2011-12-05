@@ -107,13 +107,13 @@ while requests < max
           time += c.total_time
           success +=1
           puts "success"
-          newurl = c.body_str.match(/http:\/\/.+?\/[A-Za-z]+/)[0]
+          newurl = c.body_str.match(/http:\/\/.+?\/[0-9]{4}/)[0]
           puts "Served by: " + host
           # http_put at the redirecte d urls
-          pi_put(newurl) if name.include?("pi")
-          quad_put(newurl) if name.include?("quad")
-          convert_put(newurl) if name.include?("convert")
-          fib_put(newurl) if name.include?("fib")           
+           pi_put(newurl) if name.include?("pi")
+           quad_put(newurl) if name.include?("quad")
+           convert_put(newurl) if name.include?("convert")
+           fib_put(newurl) if name.include?("fib")           
           
   
       end

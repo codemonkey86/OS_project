@@ -120,7 +120,7 @@ class ServicesController < ApplicationController
     pid_array.each do |jproc|
               if jproc.match(/script\/server/)
                    pid = jproc.match(/.+?([0-9]+)/)[1].to_i    #pid
-                   sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0) / (1024* `free -mt`.match(/Mem:\s*([0-9]+)/)[1].to_f)
+                   sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0) 
                end
         end
 
