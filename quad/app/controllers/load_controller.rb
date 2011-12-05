@@ -19,7 +19,7 @@ class LoadController < ApplicationController
      end
      memory = (procmemory + sysmem)/2
      puts "Memory pre connection" + memory.to_s
-     load =memory + memory*(connections*(50.0/100))
+     load =memory + memory*(connections*(95.0/100))
      puts "number connections" + connections.to_s
      puts "Memory post connection" + load.to_s
        # each connection adds 5% to load calculation, representing potential load, also to facilitate demonstration

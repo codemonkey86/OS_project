@@ -19,7 +19,7 @@ class LoadController < ApplicationController
             end
      end
      memory = (procmemory + sysmem)/2
-     load =memory + memory*(connections*(50.0/100))
+     load =memory + memory*(connections*(95.0/100))
        # each connection adds 5% to load calculation, representing potential load, also to facilitate demonstration
      render :text  => load.inspect
   end
