@@ -21,7 +21,7 @@ class Service < ActiveRecord::Base
      'quad' => 0
   }
 
-  LOAD_PCT = 0.1
+  LOAD_PCT = 0.25
 
   CACHE_KEY = 'discovered'
 
