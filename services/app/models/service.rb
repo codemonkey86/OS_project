@@ -31,7 +31,12 @@ class Service < ActiveRecord::Base
 
   #check local balance, checks if service can be run and load is below threshold else returns false
   def self.run_local(servicename, servicepolicy, req_pol)
-    load = net_get("http://localhost:#{Service::APPS[servicename]}/load").to_f
+    load = net_get("http://localhost:#{Service::APPS[servicename]}/load")
+    if load
+       load = load.to_f
+    else
+        return false
+    end
    
     threshold = @@LOADS[servicename]
     if load < @@LOADS[servicename] && load/@@LOADS[servicename] > LOAD_PCT
