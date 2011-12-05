@@ -6,7 +6,7 @@ class LoadController < ApplicationController
   def index
     # # of sessions and CPU usage
     connections = `netstat -an | grep :4416 |wc -l`.gsub!("\n","").to_i
-    procmemory = (`pmap #{Process.pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0) 
+    procmemory = (`pmap #{Process.pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0)  / (1024* `free -mt`.match(/Mem:\s*([0-9]+)/)[1].to_f)
     
     sysmem = 0 
     # the pops here is to not include the two "process" found with ps the command itself which are gone by time pmap occurs
@@ -14,7 +14,7 @@ class LoadController < ApplicationController
     pid_array.each do |jproc|
            if jproc.match(/script\/server/)
                 pid = jproc.match(/.+?([0-9]+)/)[1].to_i    #pid
-                sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0) 
+                sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0)  / (1024* `free -mt`.match(/Mem:\s*([0-9]+)/)[1].to_f)
             end
      end
      memory = (procmemory + sysmem)/2
