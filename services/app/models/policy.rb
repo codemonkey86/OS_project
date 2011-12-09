@@ -8,33 +8,29 @@ class Policy
   WS_XSD_PATH = RAILS_ROOT + '/lib/ws_policy/ws_policy.xsd'
   KINDS = %w(and one)
 
-  attr_accessor :kind, :needs
+  attr_accessor :kind, :supports
   ##
   # creates a new policy object that describes polices
   # needed to support to talk to another service
   # input: ws_policy xml
   def initialize(xml)
     doc = Nokogiri::XML(xml)
-   
-    @needs = []
-   
+
+    @supports = []
+
     doc.xpath('//wsp:Policy').children.each do |x|
-      
+
       name = x.name
       if name == 'All'
         @kind = 'all'
       else
         @kind = 'one'
       end
-     
+
       x.children.each do |pol|
-       
-        @needs << pol.name
-      
+        @supports << pol.name
       end
-      
     end
-    
   end
 
   ##
@@ -44,11 +40,10 @@ class Policy
   def self.can_talk?(pol_hash,requested)
     return true if requested.empty?
 
-    diff = pol_hash["needs"] - requested
     if pol_hash["kind"] == 'all'
-      diff.empty?
+      (requested.split(',') - pol_hash["supports"]).empty?
     else
-      diff.size < pol_hash["needs"].size
+      pol_hash["supports"].include?(requested)
     end
   end
 
