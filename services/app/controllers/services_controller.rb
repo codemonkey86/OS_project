@@ -74,7 +74,7 @@ class ServicesController < ApplicationController
     end
 
     # TODO: decide if empty array or nil is better
-    req_pol = params[:policies] ? params[:policies].split(',') : []
+    req_pol = params[:policies] || ''
     puts "Using " + req_pol.inspect + " as polices from user"
 
     # load balancing algorithm: run locally if below threshold
@@ -120,7 +120,7 @@ class ServicesController < ApplicationController
     pid_array.each do |jproc|
               if jproc.match(/script\/server/)
                    pid = jproc.match(/.+?([0-9]+)/)[1].to_i    #pid
-                   sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0) 
+                   sysmem += (`pmap #{pid} | tail -1`[10,40].strip.gsub!("K","").to_f*100.0)
                end
         end
 
