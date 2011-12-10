@@ -124,7 +124,7 @@ while requests < max
     end
    
   
-    #sleep 5 
+    sleep 1
 end
 
 time = time/success
