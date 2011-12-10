@@ -76,20 +76,20 @@ time = 0
 master = []
 endlessjig = []
 endlesswaltz = []
-stevelaptop = []
+computitron = []
 error_urls = []
 while requests < max 
      requests += 1
      
        # every  request  build up arrays to then analyze later, figure out timing
        load = curl_load("http://" + machinehash[0].to_s + ":3000/services/sysload")
-       master << load if load
+       master << load.to_f if load
        load = curl_load("http://" + machinehash[1].to_s + ":3000/services/sysload")
-       endlesswaltz << load if load
+       endlesswaltz << load.to_f if load
        load = curl_load("http://" + machinehash[2].to_s + ":3000/services/sysload")
-       stevelaptop << load if load
+       computitron << load.to_f if load
        load = curl_load("http://" + machinehash[3].to_s + ":3000/services/sysload")
-       endlessjig << load if load
+       endlessjig << load.to_f if load
 
     url = "http://" + machinehash[rand(4)].to_s + ":3000/services/"  + servicehash[rand(4)].to_s + policyhash[rand(4)].to_s
     name = url.match(/services\/(.+)/)[1]
@@ -108,33 +108,30 @@ while requests < max
           time += c.total_time
           success +=1
           puts "success"
-          newurl = c.body_str.match(/http:\/\/.+?\/[0-9]{4}/)[0]
-          puts "Served by: " + host
+          newurl = c.body_str.match(/http:\/\/.+?:[0-9]{4}/)[0]
+	  puts "Served by: " + host
           # http_put at the redirecte d urls
            pi_put(newurl) if name.include?("pi")
            quad_put(newurl) if name.include?("quad")
            convert_put(newurl) if name.include?("convert")
            fib_put(newurl) if name.include?("fib")           
-          
-  
       end
                          
     rescue Exception => e
        error_urls  << url  # perhaps track specific error as well, for now just track sites missed
     end
    
-  
+
     sleep 1
+
 end
 
 time = time/success
 
-
-puts "Average response time: " + time.to_s
-puts "Services Requested: " + servicecount.inspect
-puts "Response breakdown: " + request.inspect
-puts "Load Arrays:"
-puts "Master" + master.inspect
-puts "Endlesswaltz" + endlesswaltz.inspect
-puts "Endlessjig" + endlessjig.inspect
-puts "Computitron" + Computitron.inspect
+puts ":avg_resp=>#{time.to_s},"
+puts ":req=>#{servicecount.inspect},"
+puts ":resp=>#{request.inspect},"
+puts ":master=>#{master.inspect},"
+puts ":waltz=>#{endlesswaltz.inspect},"
+puts ":jig=>#{endlessjig.inspect},"
+puts ":computitron=>#{computitron.inspect}"
