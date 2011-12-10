@@ -123,7 +123,8 @@ while requests < max
        error_urls  << url  # perhaps track specific error as well, for now just track sites missed
     end
    
-     sleep 5 
+  
+    #sleep 5 
 end
 
 time = time/success
