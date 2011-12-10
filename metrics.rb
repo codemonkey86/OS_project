@@ -122,7 +122,7 @@ while requests < max
     end
    
 
-    sleep 1
+    sleep 2
 
 end
 
