@@ -59,11 +59,11 @@ end
 
 
 servicehash = {0 => "pi", 1 => "quad", 2 => "fib", 3 => "convert"}
-machinehash = {0 => "master", 1 => "endlesswaltz", 2 => "steve-laptop", 3 => "endlessjig"}
+machinehash = {0 => "master", 1 => "endlesswaltz", 2 => "Computitron", 3 => "endlessjig"}
 policyhash = {0 => "", 1 => "?policies=Basic256Rsa15,TripleDesRsa15", 2 => "?policies=Basic256Rsa15", 3 => "?policies=TripleDesRsa15"}
 request = {}
 request["master"] = Hash.new(0)
-request["steve-laptop"] = Hash.new(0)
+request["Computitron"] = Hash.new(0)
 request["endlesswaltz"] = Hash.new(0)
 request["endlessjig"] = Hash.new(0)
 servicecount = Hash.new(0)
@@ -136,4 +136,4 @@ puts "Load Arrays:"
 puts "Master" + master.inspect
 puts "Endlesswaltz" + endlesswaltz.inspect
 puts "Endlessjig" + endlessjig.inspect
-puts "Steve-laptop" + stevelaptop.inspect
+puts "Computitron" + Computitron.inspect

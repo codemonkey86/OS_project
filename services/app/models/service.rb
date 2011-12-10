@@ -169,6 +169,6 @@ class Service < ActiveRecord::Base
 
   #dummy cheat
   def self.nmap
-    %w(endlesswaltz steve-laptop master endlessjig)
+    %w(endlesswaltz Computitron master endlessjig)
   end
 end
