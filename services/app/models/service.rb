@@ -37,7 +37,7 @@ class Service < ActiveRecord::Base
     else
         return false
     end
-   
+
     threshold = @@LOADS[servicename]
     if load < @@LOADS[servicename] && load/@@LOADS[servicename] > LOAD_PCT
          @@LOADS[servicename] = (load + @@LOADS[servicename])/2
@@ -71,6 +71,7 @@ class Service < ActiveRecord::Base
     puts 'LIST CACHE ' + cache.inspect
     return cache if cache.empty?
     @@LOADS.keys.peach do |name|
+        next unless cache['services'][name]
          @@LOADS[name] = cache['services'][name]['threshold']
     end
     cache
