@@ -49,7 +49,7 @@ class ServicesController < ApplicationController
     end
 
     if from_scratch
-      newest = [`hostname`.strip,Service.discover]
+      newest = [`hostname`.strip,Service.discovery]
     else
       newest = caches.sort{|a,b| a.last['timestamp'] <=> b.last['timestamp']}.last
       mapped.delete_if{|x| newest.first == x}
