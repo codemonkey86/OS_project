@@ -17,31 +17,45 @@ class ServicesController < ApplicationController
   end
 
   # GET /services/sync
-  # TODO: eventually kick this off periodically somehow, script/runner ?
   ##
   # This will get all the other box's views of the network and compare
   # them to peach other to determine who has the newest overview
   # which will be sent back to everyone
-  #TODO, don't return to winner
+  #
+  # if a empty hash is seen, call Service.discovery to rebuild the cache from
+  # scratch and send that to other boxes instead
   def sync
     caches = []
+    from_scratch = false
     mapped = Service.nmap
+
     return if mapped.empty?
+
+    # iterate through boxes, removing any who don't respond
+    # so we do not waste time sending out updates to down boxes
     mapped.delete_if do |box|
       resp = Service.net_get("http://#{box}:3000")
       if resp
         c = JSON.parse(resp)
-        caches << [box,c] unless c.empty?
+        if c.empty?
+          from_scratch = true
+        else
+          caches << [box,c]
+        end
         false
       else
         true
       end
     end
 
-    newest = caches.sort{|a,b| a.last['timestamp'] <=> b.last['timestamp']}.last
-    mapped.delete_if{|x| newest.first == x}
+    if from_scratch
+      newest = [`hostname`.strip,Service.discovery]
+    else
+      newest = caches.sort{|a,b| a.last['timestamp'] <=> b.last['timestamp']}.last
+      mapped.delete_if{|x| newest.first == x}
+    end
 
-    puts 'mapped ' + mapped.inspect
+    puts 'Sending to: ' + mapped.inspect
 
     # perform the POST, the URI is always required
     mapped.peach do |box|
