@@ -130,7 +130,7 @@ class ServicesController < ApplicationController
   # POST /services
   # used to save cache state may move to new if can't hit this
   def create
-    service = Services.new(:state=>Rails.cache.fetch(Service.cache_key))
-    return service.save!
+    service = Service.new(:state=>Rails.cache.fetch(Service.cache_key))
+    render :text =>  service.save!.to_s
   end
 end

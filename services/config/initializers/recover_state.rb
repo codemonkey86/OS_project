@@ -7,7 +7,7 @@
 FRESH_FOR= 10 * 60
 
 h = Service.last.state
-if (Time.now - h[:timestamp]) < FRESH_FOR
+if (Time.now - h['timestamp']) < FRESH_FOR
   puts "Starting with cache: " + Rails.cache.write(Service.cache_key, h).inspect
 else
   puts "Starting without cache..."

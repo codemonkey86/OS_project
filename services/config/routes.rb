@@ -40,7 +40,8 @@ ActionController::Routing::Routes.draw do |map|
       :noservice => :get,
       :sysload => :get,
       :sync => :get,
-      :set_cache => :post
+      :set_cache => :post,
+      :create => :get
     }
 
   # See how all your routes lay out with "rake routes"
